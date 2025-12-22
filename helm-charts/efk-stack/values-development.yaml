@@ -1,0 +1,58 @@
+# Development values for efk-stack
+global:
+  storageClass: "standard"
+  imageRegistry: ""
+  tls:
+    enabled: false
+
+elasticsearch:
+  enabled: true
+  replicas: 1
+  version: "8.11.0"
+  resources:
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+  storage:
+    size: "50Gi"
+    storageClassName: "standard"
+  security:
+    tlsEnabled: false
+    authEnabled: false
+  podDisruptionBudget:
+    enabled: false
+  antiAffinity:
+    enabled: false
+
+fluentbit:
+  enabled: true
+  version: "2.2.0"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+
+kibana:
+  enabled: true
+  replicas: 1
+  version: "8.11.0"
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+  ingress:
+    enabled: false
+  podDisruptionBudget:
+    enabled: false
+  antiAffinity:
+    enabled: false
+

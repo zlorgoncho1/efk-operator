@@ -1,0 +1,14 @@
+resources:
+- ../crd
+- ../rbac
+- ../manager
+# +kubebuilder:scaffold:defaultkustomizeresource
+
+patches:
+- path: manager_image_patch.yaml
+  target:
+    kind: Deployment
+    name: controller-manager
+    namespace: system
+# +kubebuilder:scaffold:defaultkustomizepatch
+

@@ -1,0 +1,64 @@
+apiVersion: logging.efk.crds.io/v1
+kind: EFKStack
+metadata:
+  name: efkstack-sample
+  namespace: efk-system
+spec:
+  version: "1.0.0"
+  namespace: efk-system
+  
+  elasticsearch:
+    version: "8.11.0"
+    replicas: 3
+    resources:
+      requests:
+        cpu: "2"
+        memory: "4Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+    storage:
+      size: "100Gi"
+      storageClassName: "standard"
+      volumeType: "persistentVolumeClaim"
+    security:
+      tlsEnabled: true
+      authEnabled: true
+  
+  fluentBit:
+    version: "2.2.0"
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+  
+  kibana:
+    version: "8.11.0"
+    replicas: 2
+    resources:
+      requests:
+        cpu: "1"
+        memory: "1Gi"
+      limits:
+        cpu: "2"
+        memory: "2Gi"
+    ingress:
+      enabled: true
+      host: "kibana.example.com"
+      annotations:
+        kubernetes.io/ingress.class: "nginx"
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      tls:
+        - hosts:
+            - kibana.example.com
+          secretName: kibana-tls
+  
+  global:
+    storageClass: "standard"
+    imageRegistry: ""
+    tls:
+      enabled: true
+

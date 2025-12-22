@@ -1,0 +1,3 @@
+# The following patches add conversion to support v1beta1 versions of CRDs that were previously written.
+# +kubebuilder:scaffold:crdwebhookpatch
+

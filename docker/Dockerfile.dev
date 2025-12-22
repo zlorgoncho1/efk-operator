@@ -1,0 +1,57 @@
+# Dockerfile.dev - Environnement de développement pour l'opérateur EFK
+# Basé sur les meilleures pratiques officielles de Kubernetes et Kubebuilder
+
+FROM golang:1.21-alpine AS base
+
+# Installer les dépendances système nécessaires
+RUN apk add --no-cache \
+    git \
+    make \
+    bash \
+    curl \
+    ca-certificates \
+    docker-cli \
+    openssl \
+    && update-ca-certificates
+
+# Installer kubectl (dernière version stable)
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/kubectl
+
+# Installer Helm v3 (dernière version stable)
+RUN curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Installer Kubebuilder v3.x
+# Suivant la documentation officielle: https://kubebuilder.io/quick-start.html
+ENV KUBEBUILDER_VERSION=3.14.0
+ENV KUBEBUILDER_ASSETS=/usr/local/kubebuilder
+RUN curl -L -o kubebuilder "https://go.kubebuilder.io/dl/${KUBEBUILDER_VERSION}/$(go env GOOS)/$(go env GOARCH)" \
+    && chmod +x kubebuilder \
+    && mv kubebuilder /usr/local/bin/kubebuilder
+
+# Installer controller-gen et autres outils Kubebuilder
+# Utiliser une version compatible avec Go 1.21
+RUN go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.14.0
+
+# Installer kustomize
+RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash \
+    && mv kustomize /usr/local/bin/kustomize
+
+# Installer kind pour les tests (optionnel mais recommandé)
+RUN go install sigs.k8s.io/kind@latest
+
+# Configurer l'environnement de travail
+WORKDIR /workspace
+
+# Variables d'environnement Go
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+# Exposer le port pour les métriques (si nécessaire)
+EXPOSE 8080
+
+# Commande par défaut
+CMD ["/bin/bash"]
+

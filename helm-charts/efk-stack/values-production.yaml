@@ -1,0 +1,75 @@
+# Production values for efk-stack
+global:
+  storageClass: "fast-ssd"
+  imageRegistry: ""
+  tls:
+    enabled: true
+
+elasticsearch:
+  enabled: true
+  replicas: 5
+  version: "8.11.0"
+  resources:
+    requests:
+      cpu: "4"
+      memory: "8Gi"
+    limits:
+      cpu: "8"
+      memory: "16Gi"
+  storage:
+    size: "500Gi"
+    storageClassName: "fast-ssd"
+  security:
+    tlsEnabled: true
+    authEnabled: true
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 3
+  antiAffinity:
+    enabled: true
+    type: requiredDuringSchedulingIgnoredDuringExecution
+
+fluentbit:
+  enabled: true
+  version: "2.2.0"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+kibana:
+  enabled: true
+  replicas: 3
+  version: "8.11.0"
+  resources:
+    requests:
+      cpu: "2"
+      memory: "2Gi"
+    limits:
+      cpu: "4"
+      memory: "4Gi"
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: kibana.production.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: kibana-tls
+        hosts:
+          - kibana.production.example.com
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  antiAffinity:
+    enabled: true
+    type: requiredDuringSchedulingIgnoredDuringExecution
+

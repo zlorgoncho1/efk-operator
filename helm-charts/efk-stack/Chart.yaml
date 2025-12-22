@@ -1,0 +1,15 @@
+apiVersion: v2
+name: efk-stack
+description: A Helm chart for EFK Stack (Elasticsearch, Fluent Bit, Kibana)
+type: application
+version: 1.0.0
+appVersion: "8.11.0"
+keywords:
+  - elasticsearch
+  - fluentbit
+  - kibana
+  - logging
+  - efk
+maintainers:
+  - name: EFK Operator Team
+

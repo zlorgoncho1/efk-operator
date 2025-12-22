@@ -1,0 +1,72 @@
+replicas: 2
+version: "8.11.0"
+
+image:
+  registry: docker.elastic.co
+  repository: kibana/kibana
+  tag: "8.11.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+resources:
+  requests:
+    cpu: "1"
+    memory: "1Gi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
+
+elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+
+service:
+  type: ClusterIP
+  port: 5601
+  targetPort: 5601
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: kibana.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+serviceAccount:
+  create: true
+  name: ""
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+antiAffinity:
+  enabled: true
+  type: preferredDuringSchedulingIgnoredDuringExecution
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+livenessProbe:
+  httpGet:
+    path: /api/status
+    port: 5601
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /api/status
+    port: 5601
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+

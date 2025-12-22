@@ -1,0 +1,22 @@
+# This kustomization.yaml is not intended to be run by itself,
+# but rather as a patch via kustomize, e.g.
+#   kustomize build config/crd | kubectl apply -f -
+resources:
+- bases/logging.efk.crds.io_efkstacks.yaml
+# +kubebuilder:scaffold:crdkustomizeresource
+
+patches:
+- path: patches/webhook_in_efkstacks.yaml
+  target:
+    group: logging.efk.crds.io
+    version: v1
+    kind: EFKStack
+    name: efkstacks.logging.efk.crds.io
+- path: patches/cainjection_in_efkstacks.yaml
+  target:
+    group: logging.efk.crds.io
+    version: v1
+    kind: EFKStack
+    name: efkstacks.logging.efk.crds.io
+# +kubebuilder:scaffold:crdkustomizepatch
+

@@ -1,0 +1,63 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+testbin/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+
+# Kubernetes
+*.kubeconfig
+kubeconfig
+
+# Docker
+.dockerignore
+
+# Generated files
+api/**/zz_generated.*
+# Note: config/crd/bases/*.yaml is NOT ignored - CRDs must be committed
+# for direct GitHub installation links to work
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log
+
+# Helm charts (generated)
+helm-charts/**/charts/
+helm-charts/**/Chart.lock
+
+# Environment files
+.env
+.env.local
+
+# OS files
+Thumbs.db
+.DS_Store

@@ -1,0 +1,78 @@
+# Default values for Elasticsearch
+replicas: 3
+version: "8.11.0"
+
+image:
+  registry: docker.elastic.co
+  repository: elasticsearch/elasticsearch
+  tag: "8.11.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: "2"
+    memory: "4Gi"
+  limits:
+    cpu: "4"
+    memory: "8Gi"
+
+storage:
+  size: "100Gi"
+  storageClassName: ""
+  volumeType: persistentVolumeClaim
+
+security:
+  tlsEnabled: true
+  authEnabled: true
+  tlsSecretName: ""
+  authSecretName: ""
+
+config:
+  discovery:
+    type: kubernetes
+  xpack:
+    security:
+      enabled: true
+      transport:
+        ssl:
+          enabled: true
+
+service:
+  type: ClusterIP
+  port: 9200
+  targetPort: 9200
+
+serviceAccount:
+  create: true
+  name: ""
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+antiAffinity:
+  enabled: true
+  type: preferredDuringSchedulingIgnoredDuringExecution
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+livenessProbe:
+  httpGet:
+    path: /_cluster/health
+    port: 9200
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /_cluster/health
+    port: 9200
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+

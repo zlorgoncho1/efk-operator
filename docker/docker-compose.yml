@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    image: efk-operator-dev:latest
+    container_name: efk-operator-dev
+    volumes:
+      # Montage du code source
+      - ..:/workspace
+      # Cache Go pour accélérer les builds
+      - go-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+      # Kubeconfig pour accès au cluster (optionnel)
+      - ${HOME}/.kube:/root/.kube:ro
+      # Docker socket pour utiliser Docker depuis le conteneur (si nécessaire)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - GOPROXY=https://proxy.golang.org,direct
+      - GOSUMDB=sum.golang.org
+      - CGO_ENABLED=0
+      - GOOS=linux
+      - GOARCH=amd64
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    networks:
+      - efk-dev-network
+
+volumes:
+  go-cache:
+    driver: local
+  go-build-cache:
+    driver: local
+
+networks:
+  efk-dev-network:
+    driver: bridge
+

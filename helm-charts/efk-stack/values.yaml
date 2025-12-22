@@ -1,0 +1,21 @@
+# Default values for efk-stack
+global:
+  storageClass: ""
+  imageRegistry: ""
+  tls:
+    enabled: true
+
+elasticsearch:
+  enabled: true
+  replicas: 3
+  version: "8.11.0"
+
+fluentbit:
+  enabled: true
+  version: "2.2.0"
+
+kibana:
+  enabled: true
+  replicas: 2
+  version: "8.11.0"
+
