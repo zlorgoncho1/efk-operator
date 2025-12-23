@@ -61,3 +61,6 @@ helm-charts/**/Chart.lock
 # OS files
 Thumbs.db
 .DS_Store
+
+# Commit Message
+COMMIT_MESSAGE.md

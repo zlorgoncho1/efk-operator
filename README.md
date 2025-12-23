@@ -28,14 +28,17 @@ See the [User Guide](docs/USER_GUIDE.md) for complete installation and usage ins
 
 ```bash
 # Install CRDs (from GitHub)
-kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/main/efk/config/crd/bases/logging.efk.crds.io_efkstacks.yaml
+kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/refs/heads/main/config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 
-# Deploy the operator (requires kustomize)
+# Deploy the operator (clone repository first)
+git clone https://github.com/zlorgoncho1/efk-operator.git
+cd efk-operator
 kubectl create namespace system
-kubectl apply -k https://github.com/zlorgoncho1/efk-operator.git/efk/config/default
+# Update the image in config/default/manager_image_patch.yaml with your Docker image
+kubectl apply -k config/default
 
 # Create an EFK stack (example)
-kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/main/efk/config/samples/logging_v1_efkstack.yaml
+kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/refs/heads/main/config/samples/logging_v1_efkstack.yaml
 ```
 
 ### For Developers

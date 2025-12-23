@@ -34,14 +34,14 @@ Complete guide to install and use the EFK Stack operator in your Kubernetes clus
 You can install directly from GitHub without cloning the repository:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/main/efk/config/crd/bases/logging.efk.crds.io_efkstacks.yaml
+kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/refs/heads/main/config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 ```
 
 **Alternative**: If you prefer to clone the repository for development:
 
 ```bash
 git clone https://github.com/zlorgoncho1/efk-operator.git
-cd efk-operator/efk
+cd efk-operator
 kubectl apply -f config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 ```
 
@@ -53,27 +53,34 @@ kubectl get crd efkstacks.logging.efk.crds.io
 
 #### Step 2: Deploy the Operator
 
-**Option A: From GitHub (without cloning)**
+**Note**: `kubectl apply -k` requires local access to the kustomization files, so you need to clone the repository first.
 
 ```bash
+# Clone the repository
+git clone https://github.com/zlorgoncho1/efk-operator.git
+cd efk-operator
+
 # Create namespace for operator
 kubectl create namespace system
 
-# Deploy operator (requires kustomize)
-kubectl apply -k https://github.com/zlorgoncho1/efk-operator.git/efk/config/default
-```
-
-**Option B: After cloning the repository**
-
-```bash
-# Create namespace for operator
-kubectl create namespace system
+# Update the operator image (IMPORTANT: Replace with your Docker image)
+# Edit config/default/manager_image_patch.yaml and set your image, or use:
+# kustomize edit set image controller=your-registry/efk-operator:v0.1.0
 
 # Deploy operator
 kubectl apply -k config/default
 ```
 
-**Note**: Before deploying, you must update the operator image in `config/default/manager_image_patch.yaml` with your Docker image, or use `kustomize edit set image` to modify the image.
+**Alternative**: If you have `kustomize` installed, you can build the manifests and apply them:
+
+```bash
+# Clone the repository
+git clone https://github.com/zlorgoncho1/efk-operator.git
+cd efk-operator
+
+# Build manifests with kustomize
+kustomize build config/default | kubectl apply -f -
+```
 
 #### Step 3: Verify Deployment
 
