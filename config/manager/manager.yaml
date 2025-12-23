@@ -3,16 +3,16 @@ kind: Namespace
 metadata:
   labels:
     control-plane: controller-manager
-  name: system
+  name: efk-logging
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: controller-manager
-  namespace: system
+  namespace: efk-logging
   labels:
     control-plane: controller-manager
-    app.kubernetes.io/name: efk-operator
+    app.kubernetes.io/name: efk-logging
 spec:
   selector:
     matchLabels:
@@ -24,13 +24,13 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         control-plane: controller-manager
-        app.kubernetes.io/name: efk-operator
+        app.kubernetes.io/name: efk-logging
     spec:
       securityContext:
         runAsNonRoot: true
       containers:
       - command:
-        - /manager
+        - /usr/local/bin/manager
         args:
         - --leader-elect
         image: controller:latest

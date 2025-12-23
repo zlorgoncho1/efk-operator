@@ -9,6 +9,6 @@ patches:
   target:
     kind: Deployment
     name: controller-manager
-    namespace: system
+    namespace: efk-logging
 # +kubebuilder:scaffold:defaultkustomizepatch
 

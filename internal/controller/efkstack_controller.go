@@ -24,7 +24,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -49,9 +48,10 @@ type EFKStackReconciler struct {
 //+kubebuilder:rbac:groups=logging.efk.crds.io,resources=efkstacks/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=logging.efk.crds.io,resources=efkstacks/finalizers,verbs=update
 //+kubebuilder:rbac:groups=apps,resources=statefulsets;deployments;daemonsets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="",resources=configmaps;secrets;services;serviceaccounts;persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=configmaps;namespaces;secrets;services;serviceaccounts;persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=batch,resources=cronjobs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=policy,resources=poddisruptionbudgets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -164,11 +164,18 @@ func (r *EFKStackReconciler) reconcileElasticsearch(ctx context.Context, efkStac
 		"storage": map[string]interface{}{
 			"size":             efkStack.Spec.Elasticsearch.Storage.Size,
 			"storageClassName": efkStack.Spec.Elasticsearch.Storage.StorageClassName,
+			"path":             efkStack.Spec.Elasticsearch.Storage.Path,
 		},
 		"security": map[string]interface{}{
 			"tlsEnabled":  efkStack.Spec.Elasticsearch.Security.TLSEnabled,
 			"authEnabled": efkStack.Spec.Elasticsearch.Security.AuthEnabled,
 		},
+	}
+	if len(efkStack.Spec.Elasticsearch.NodeSelector) > 0 {
+		values["nodeSelector"] = efkStack.Spec.Elasticsearch.NodeSelector
+	}
+	if len(efkStack.Spec.Elasticsearch.Tolerations) > 0 {
+		values["tolerations"] = efkStack.Spec.Elasticsearch.Tolerations
 	}
 
 	// Deploy via Helm
@@ -282,6 +289,12 @@ func (r *EFKStackReconciler) reconcileKibana(ctx context.Context, efkStack *logg
 			"annotations": efkStack.Spec.Kibana.Ingress.Annotations,
 			"tls":         efkStack.Spec.Kibana.Ingress.TLS,
 		}
+	}
+	if len(efkStack.Spec.Kibana.NodeSelector) > 0 {
+		values["nodeSelector"] = efkStack.Spec.Kibana.NodeSelector
+	}
+	if len(efkStack.Spec.Kibana.Tolerations) > 0 {
+		values["tolerations"] = efkStack.Spec.Kibana.Tolerations
 	}
 
 	// Deploy via Helm

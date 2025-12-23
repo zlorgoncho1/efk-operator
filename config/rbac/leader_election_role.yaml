@@ -2,9 +2,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: leader-election-role
-  namespace: system
+  namespace: efk-logging
   labels:
-    app.kubernetes.io/name: efk-operator
+    app.kubernetes.io/name: efk-logging
 rules:
 - apiGroups:
   - ""

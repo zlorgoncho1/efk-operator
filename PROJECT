@@ -1,7 +1,7 @@
 domain: efk.crds.io
 layout:
 - go.kubebuilder.io/v3
-projectName: efk-operator
+projectname: efk-logging
 repo: github.com/zlorgoncho1/efk-operator
 version: "3"
 

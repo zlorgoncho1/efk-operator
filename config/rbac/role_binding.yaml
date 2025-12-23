@@ -3,7 +3,7 @@ kind: ClusterRoleBinding
 metadata:
   name: manager-rolebinding
   labels:
-    app.kubernetes.io/name: efk-operator
+    app.kubernetes.io/name: efk-logging
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -11,5 +11,5 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: controller-manager
-  namespace: system
+  namespace: efk-logging
 

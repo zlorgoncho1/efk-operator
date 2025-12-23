@@ -20,6 +20,7 @@ storage:
   size: "100Gi"
   storageClassName: ""
   volumeType: persistentVolumeClaim
+  path: ""  # Custom EFS path (e.g., /eyone-prod/elasticsearch)
 
 security:
   tlsEnabled: true
@@ -62,17 +63,17 @@ livenessProbe:
   httpGet:
     path: /_cluster/health
     port: 9200
-  initialDelaySeconds: 60
+  initialDelaySeconds: 120
   periodSeconds: 30
-  timeoutSeconds: 10
-  failureThreshold: 3
+  timeoutSeconds: 30
+  failureThreshold: 5
 
 readinessProbe:
   httpGet:
     path: /_cluster/health
     port: 9200
-  initialDelaySeconds: 30
+  initialDelaySeconds: 60
   periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
+  timeoutSeconds: 15
+  failureThreshold: 5
 

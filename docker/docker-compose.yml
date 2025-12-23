@@ -6,7 +6,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.dev
     image: efk-operator-dev:latest
-    container_name: efk-operator-dev
+    container_name: efk-logging-dev
     volumes:
       # Montage du code source
       - ..:/workspace

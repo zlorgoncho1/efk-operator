@@ -154,3 +154,6 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
+
+// Force compatible version of cli-runtime to fix compilation error
+replace k8s.io/cli-runtime => k8s.io/cli-runtime v0.29.0

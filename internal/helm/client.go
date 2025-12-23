@@ -24,13 +24,11 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // Client wraps Helm action configuration and provides methods for chart operations
@@ -134,7 +132,7 @@ func (c *Client) Uninstall(ctx context.Context, releaseName string) error {
 	uninstallAction.Timeout = 5 * time.Minute
 	uninstallAction.Wait = true
 
-	_, err := uninstallAction.RunWithContext(ctx, releaseName)
+	_, err := uninstallAction.Run(releaseName)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Release not found, consider it already uninstalled

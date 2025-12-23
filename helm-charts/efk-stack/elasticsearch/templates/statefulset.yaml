@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/component: elasticsearch
 spec:
   serviceName: {{ include "elasticsearch.fullname" . }}-headless
+  podManagementPolicy: Parallel
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
@@ -44,15 +45,20 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: discovery.seed_hosts
-          value: "{{ include "elasticsearch.fullname" . }}-headless"
+          value: "{{ include "elasticsearch.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local"
         - name: cluster.initial_master_nodes
           value: "{{ include "elasticsearch.fullname" . }}-0,{{ include "elasticsearch.fullname" . }}-1,{{ include "elasticsearch.fullname" . }}-2"
         - name: ES_JAVA_OPTS
           value: "-Xms{{ .Values.resources.requests.memory | replace "Gi" "g" | replace "Mi" "m" }} -Xmx{{ .Values.resources.requests.memory | replace "Gi" "g" | replace "Mi" "m" }}"
         - name: xpack.security.enabled
           value: "{{ .Values.security.authEnabled }}"
+        {{- if and .Values.security.tlsEnabled .Values.security.tlsSecretName }}
         - name: xpack.security.transport.ssl.enabled
-          value: "{{ .Values.security.tlsEnabled }}"
+          value: "true"
+        {{- else }}
+        - name: xpack.security.transport.ssl.enabled
+          value: "false"
+        {{- end }}
         {{- if .Values.security.tlsSecretName }}
         - name: xpack.security.transport.ssl.keystore.path
           value: "/usr/share/elasticsearch/config/certs/elasticsearch.p12"
@@ -105,6 +111,10 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: data
+      {{- if .Values.storage.path }}
+      annotations:
+        volume.beta.kubernetes.io/mount-options: "path={{ .Values.storage.path }}"
+      {{- end }}
     spec:
       accessModes: [ "ReadWriteOnce" ]
       {{- if .Values.storage.storageClassName }}

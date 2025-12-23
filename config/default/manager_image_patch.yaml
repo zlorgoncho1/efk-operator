@@ -2,11 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: controller-manager
-  namespace: system
+  namespace: efk-logging
 spec:
   template:
     spec:
       containers:
       - name: manager
-        image: controller:latest
+        image: zlorg/efk-operator:v0.1.8
 

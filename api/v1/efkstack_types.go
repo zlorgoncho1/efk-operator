@@ -74,6 +74,14 @@ type ElasticsearchSpec struct {
 	// Configuration additionnelle (clés-valeurs)
 	// +optional
 	Config map[string]string `json:"config,omitempty"`
+
+	// NodeSelector pour planifier les pods sur des nœuds spécifiques
+	// +optional
+	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
+
+	// Tolerations pour permettre le scheduling sur des nœuds avec des taints
+	// +optional
+	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
 }
 
 // FluentBitSpec defines the Fluent Bit configuration
@@ -128,6 +136,14 @@ type KibanaSpec struct {
 	// Configuration Ingress
 	// +optional
 	Ingress IngressSpec `json:"ingress,omitempty"`
+
+	// NodeSelector pour planifier les pods sur des nœuds spécifiques
+	// +optional
+	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
+
+	// Tolerations pour permettre le scheduling sur des nœuds avec des taints
+	// +optional
+	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
 }
 
 // StorageSpec defines storage configuration
@@ -144,6 +160,10 @@ type StorageSpec struct {
 	// Type de volume (persistentVolumeClaim, emptyDir, etc.)
 	// +optional
 	VolumeType string `json:"volumeType,omitempty"`
+
+	// Chemin personnalisé pour EFS (e.g., /eyone-prod/elasticsearch)
+	// +optional
+	Path string `json:"path,omitempty"`
 }
 
 // SecuritySpec defines security configuration
