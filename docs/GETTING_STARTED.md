@@ -1,142 +1,142 @@
 # Getting Started - EFK Stack Operator
 
-Guide de démarrage rapide pour les développeurs.
+Quick start guide for developers.
 
-## Prérequis
+## Prerequisites
 
-- Docker et Docker Compose installés
-- Accès à un cluster Kubernetes (optionnel pour les tests de base)
-- `kubectl` configuré (optionnel)
+- Docker and Docker Compose installed
+- Access to a Kubernetes cluster (optional for basic tests)
+- `kubectl` configured (optional)
 
-## Installation Rapide
+## Quick Installation
 
-### 1. Construire l'environnement Docker
+### 1. Build Docker Environment
 
 ```bash
 cd efk
 make docker-build
 ```
 
-**Temps estimé** : 2-3 minutes (première fois)
+**Estimated time**: 2-3 minutes (first time)
 
-**Résultat attendu** : Image `efk-operator-dev:latest` construite
+**Expected result**: `efk-operator-dev:latest` image built
 
-### 2. Tests automatiques rapides
+### 2. Quick Automatic Tests
 
 ```bash
 make test-quick
 ```
 
-**Temps estimé** : 1-2 minutes
+**Estimated time**: 1-2 minutes
 
-Cette commande exécute :
-- Construction de l'image Docker
-- Génération des manifests CRD
-- Génération du code (deepcopy)
-- Compilation du binaire
+This command executes:
+- Docker image build
+- CRD manifest generation
+- Code generation (deepcopy)
+- Binary compilation
 
-### 3. Vérifier l'installation
+### 3. Verify Installation
 
 ```bash
-# Vérifier que les fichiers sont créés
+# Verify that files are created
 ls config/crd/bases/
 ls bin/manager
 ```
 
-**Résultat attendu** :
-- ✅ Fichier CRD généré : `config/crd/bases/logging.efk.crds.io_efkstacks.yaml`
-- ✅ Binaire créé : `bin/manager`
+**Expected result**:
+- ✅ Generated CRD file: `config/crd/bases/logging.efk.crds.io_efkstacks.yaml`
+- ✅ Binary created: `bin/manager`
 
-## Environnement de Développement
+## Development Environment
 
-### Démarrer l'environnement
+### Start Environment
 
 ```bash
 make dev-up
 ```
 
-### Ouvrir un shell de développement
+### Open Development Shell
 
 ```bash
 make dev-shell
 ```
 
-Dans le shell, vous avez accès à :
+In the shell, you have access to:
 - `go` - Go 1.21.13
 - `helm` - Helm v3.19.4
-- `kubectl` - kubectl (dernière version)
+- `kubectl` - kubectl (latest version)
 - `controller-gen` - controller-gen v0.14.0
 - `kustomize` - kustomize v5.8.0
 
-### Commandes de développement
+### Development Commands
 
 ```bash
-# Générer les manifests CRD
+# Generate CRD manifests
 make manifests
 
-# Générer le code (deepcopy)
+# Generate code (deepcopy)
 make generate
 
-# Formater le code
+# Format code
 make fmt
 
-# Vérifier le code (avec note sur go vet)
+# Verify code (with note on go vet)
 make vet
 
-# Compiler
+# Compile
 make build
 
-# Exécuter localement (hors cluster)
+# Run locally (outside cluster)
 make run
 ```
 
-## Tests Rapides
+## Quick Tests
 
-### Test manuel en 3 étapes
+### Manual Test in 3 Steps
 
-1. **Construire l'image** : `make docker-build`
-2. **Tests automatiques** : `make test-quick`
-3. **Vérifier** : `ls config/crd/bases/ && ls bin/`
+1. **Build image**: `make docker-build`
+2. **Automatic tests**: `make test-quick`
+3. **Verify**: `ls config/crd/bases/ && ls bin/`
 
-### Scripts de test (optionnel)
+### Test Scripts (optional)
 
-#### Linux/Mac :
+#### Linux/Mac:
 ```bash
 chmod +x scripts/test-all.sh
 ./scripts/test-all.sh
 ```
 
-#### Windows (PowerShell) :
+#### Windows (PowerShell):
 ```powershell
 .\scripts\test-all.ps1
 ```
 
-## Problèmes Courants
+## Common Issues
 
-### Erreur : "docker-compose: command not found"
-**Solution** : Utilisez `docker compose` (sans tiret) ou installez Docker Compose
+### Error: "docker-compose: command not found"
+**Solution**: Use `docker compose` (without hyphen) or install Docker Compose
 
-### Erreur : "make: command not found"
-**Windows** : Installez [Make for Windows](https://www.gnu.org/software/make/) ou utilisez WSL
+### Error: "make: command not found"
+**Windows**: Install [Make for Windows](https://www.gnu.org/software/make/) or use WSL
 
-### Erreur lors du build Docker
-**Solution** : Vérifiez que Docker Desktop est démarré
+### Docker build error
+**Solution**: Verify that Docker Desktop is running
 
-### Erreur go vet (non bloquant)
-Voir la section [Known Issues](../README.md#known-issues) dans le README principal.
+### go vet error (non-blocking)
+See the [Known Issues](../README.md#known-issues) section in the main README.
 
-## Prochaines Étapes
+## Next Steps
 
-Une fois l'environnement configuré :
+Once the environment is set up:
 
-1. **Développement** : Commencez à modifier le code dans `internal/controller/`
-2. **Tests** : Consultez [TESTING.md](TESTING.md) pour les tests complets
-3. **Architecture** : Consultez [ARCHITECTURE.md](ARCHITECTURE.md) pour comprendre la structure
-4. **Utilisation** : Consultez [USER_GUIDE.md](USER_GUIDE.md) pour déployer dans un cluster
+1. **Development**: Start modifying code in `internal/controller/`
+2. **Tests**: See [TESTING.md](TESTING.md) for complete tests
+3. **Architecture**: See [ARCHITECTURE.md](ARCHITECTURE.md) to understand the structure
+4. **Usage**: See [USER_GUIDE.md](USER_GUIDE.md) to deploy in a cluster
 
-## Documentation Complète
+## Complete Documentation
 
-- **[TESTING.md](TESTING.md)** - Guide complet de test et validation
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architecture et structure du projet
-- **[USER_GUIDE.md](USER_GUIDE.md)** - Guide utilisateur pour installation/utilisation
+- **[TESTING.md](TESTING.md)** - Complete testing and validation guide
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Project architecture and structure
+- **[USER_GUIDE.md](USER_GUIDE.md)** - User guide for installation/usage
 

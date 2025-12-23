@@ -4,69 +4,69 @@
 [![Go Version](https://img.shields.io/badge/Go-1.21-blue.svg)](https://golang.org/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-1.24%2B-blue.svg)](https://kubernetes.io/)
 
-Un opérateur Kubernetes pour déployer facilement une stack EFK (Elasticsearch, Fluent Bit, Kibana) production-ready avec des CRDs et des templates Helm flexibles.
+A Kubernetes operator to easily deploy a production-ready EFK (Elasticsearch, Fluent Bit, Kibana) stack with flexible CRDs and Helm templates.
 
 **Repository**: [https://github.com/zlorgoncho1/efk-operator](https://github.com/zlorgoncho1/efk-operator)
 
-## Vue d'ensemble
+## Overview
 
-Cet opérateur permet de déployer une stack EFK complète en créant simplement une ressource `EFKStack` personnalisée. L'opérateur gère automatiquement le déploiement, la configuration et la mise à jour des composants.
+This operator allows you to deploy a complete EFK stack by simply creating a custom `EFKStack` resource. The operator automatically manages the deployment, configuration, and updates of components.
 
 ## Architecture
 
-- **Elasticsearch**: Stockage et indexation des logs
-- **Fluent Bit**: Collecte des logs depuis tous les nœuds Kubernetes
-- **Kibana**: Interface de visualisation et d'analyse
+- **Elasticsearch**: Log storage and indexing
+- **Fluent Bit**: Log collection from all Kubernetes nodes
+- **Kibana**: Visualization and analysis interface
 
 ## Quick Start
 
-### Pour les utilisateurs
+### For Users
 
-Voir le [Guide Utilisateur](docs/USER_GUIDE.md) pour l'installation complète et l'utilisation.
+See the [User Guide](docs/USER_GUIDE.md) for complete installation and usage instructions.
 
-**Installation rapide** :
+**Quick installation**:
 
 ```bash
-# Installer les CRDs (depuis GitHub)
+# Install CRDs (from GitHub)
 kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/main/efk/config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 
-# Déployer l'opérateur (nécessite kustomize)
+# Deploy the operator (requires kustomize)
 kubectl create namespace system
 kubectl apply -k https://github.com/zlorgoncho1/efk-operator.git/efk/config/default
 
-# Créer une stack EFK (exemple)
+# Create an EFK stack (example)
 kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/main/efk/config/samples/logging_v1_efkstack.yaml
 ```
 
-### Pour les développeurs
+### For Developers
 
-Voir le [Guide de Démarrage](docs/GETTING_STARTED.md) pour configurer l'environnement de développement.
+See the [Getting Started Guide](docs/GETTING_STARTED.md) to set up the development environment.
 
-**Démarrage rapide** :
+**Quick start**:
 
 ```bash
-# Construire l'environnement Docker
+# Build the Docker environment
 make docker-build
 
-# Tests rapides
+# Quick tests
 make test-quick
 ```
 
-## Prérequis
+## Prerequisites
 
 - Kubernetes 1.24+
-- `kubectl` configuré pour accéder à votre cluster
-- Docker et Docker Compose (pour le développement)
+- `kubectl` configured to access your cluster
+- Docker and Docker Compose (for development)
 
 ## Installation
 
-Pour les instructions détaillées d'installation, consultez le [Guide Utilisateur](docs/USER_GUIDE.md#installation-de-lopérateur).
+For detailed installation instructions, see the [User Guide](docs/USER_GUIDE.md#installation-de-lopérateur).
 
-## Utilisation
+## Usage
 
-### Créer une stack EFK
+### Create an EFK Stack
 
-Créez un fichier `efkstack.yaml`:
+Create an `efkstack.yaml` file:
 
 ```yaml
 apiVersion: logging.efk.crds.io/v1
@@ -126,13 +126,13 @@ spec:
           secretName: kibana-tls
 ```
 
-Appliquez la ressource:
+Apply the resource:
 
 ```bash
 kubectl apply -f efkstack.yaml
 ```
 
-### Vérifier le statut
+### Check Status
 
 ```bash
 kubectl get efkstack my-efk-stack -n efk-system
@@ -145,60 +145,60 @@ kubectl describe efkstack my-efk-stack -n efk-system
 
 #### Elasticsearch
 
-- `version`: Version d'Elasticsearch (ex: "8.11.0")
-- `replicas`: Nombre de replicas (minimum 1, recommandé 3+ pour production)
-- `resources`: Ressources CPU et mémoire
-- `storage`: Configuration du stockage persistant
-- `security`: Configuration TLS et authentification
+- `version`: Elasticsearch version (e.g., "8.11.0")
+- `replicas`: Number of replicas (minimum 1, recommended 3+ for production)
+- `resources`: CPU and memory resources
+- `storage`: Persistent storage configuration
+- `security`: TLS and authentication configuration
 
 #### Fluent Bit
 
-- `version`: Version de Fluent Bit (ex: "2.2.0")
-- `resources`: Ressources CPU et mémoire
-- `config`: Configuration personnalisée (optionnel)
+- `version`: Fluent Bit version (e.g., "2.2.0")
+- `resources`: CPU and memory resources
+- `config`: Custom configuration (optional)
 
 #### Kibana
 
-- `version`: Version de Kibana (ex: "8.11.0")
-- `replicas`: Nombre de replicas (recommandé 2+ pour HA)
-- `resources`: Ressources CPU et mémoire
-- `ingress`: Configuration Ingress pour l'accès externe
+- `version`: Kibana version (e.g., "8.11.0")
+- `replicas`: Number of replicas (recommended 2+ for HA)
+- `resources`: CPU and memory resources
+- `ingress`: Ingress configuration for external access
 
-## Développement
+## Development
 
-### Structure du projet
+### Project Structure
 
 ```
 efk/
-├── api/v1/              # Définitions CRD
-├── config/              # Manifests Kubernetes
-├── controllers/         # Logique de réconciliation
-├── helm-charts/         # Charts Helm pour les composants
-└── internal/helm/       # Client Helm
+├── api/v1/              # CRD definitions
+├── config/              # Kubernetes manifests
+├── controllers/         # Reconciliation logic
+├── helm-charts/         # Helm charts for components
+└── internal/helm/       # Helm client
 ```
 
-### Commandes utiles
+### Useful Commands
 
 ```bash
-# Générer le code
+# Generate code
 make generate
 
-# Formater le code
+# Format code
 make fmt
 
-# Exécuter les tests
+# Run tests
 make test
 
-# Construire l'opérateur
+# Build the operator
 make build
 
-# Exécuter localement (hors cluster)
+# Run locally (outside cluster)
 make run
 ```
 
 ### Tests
 
-Les tests utilisent Ginkgo et Gomega:
+Tests use Ginkgo and Gomega:
 
 ```bash
 make test
@@ -206,42 +206,42 @@ make test
 
 ## Documentation
 
-Toute la documentation est disponible dans le dossier [`docs/`](docs/):
+All documentation is available in the [`docs/`](docs/) directory:
 
-### Pour les utilisateurs
-- **[Guide Utilisateur](docs/USER_GUIDE.md)** - Installation, utilisation et dépannage
-- **[Architecture](docs/ARCHITECTURE.md)** - Structure du projet
+### For Users
+- **[User Guide](docs/USER_GUIDE.md)** - Installation, usage, and troubleshooting
+- **[Architecture](docs/ARCHITECTURE.md)** - Project structure
 
-### Pour les développeurs
-- **[Guide de Démarrage](docs/GETTING_STARTED.md)** - Configuration de l'environnement de développement
-- **[Guide de Test](docs/TESTING.md)** - Tests et validation
-- **[Architecture](docs/ARCHITECTURE.md)** - Structure du projet
+### For Developers
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - Development environment setup
+- **[Testing Guide](docs/TESTING.md)** - Testing and validation
+- **[Architecture](docs/ARCHITECTURE.md)** - Project structure
 
-Voir [docs/README.md](docs/README.md) pour l'index complet de la documentation.
+See [docs/README.md](docs/README.md) for the complete documentation index.
 
 ## Production
 
-### Recommandations
+### Recommendations
 
-1. **Haute disponibilité**: Utilisez au moins 3 replicas pour Elasticsearch et 2+ pour Kibana
-2. **Sécurité**: Activez TLS et l'authentification
-3. **Stockage**: Utilisez des storage classes performantes (SSD)
-4. **Monitoring**: Configurez le monitoring des composants
-5. **Backup**: Mettez en place des stratégies de backup pour Elasticsearch
+1. **High Availability**: Use at least 3 replicas for Elasticsearch and 2+ for Kibana
+2. **Security**: Enable TLS and authentication
+3. **Storage**: Use high-performance storage classes (SSD)
+4. **Monitoring**: Configure component monitoring
+5. **Backup**: Implement backup strategies for Elasticsearch
 
-### Exemple de configuration production
+### Production Configuration Example
 
-Voir `efk/helm-charts/efk-stack/values-production.yaml` pour un exemple de configuration production-ready.
+See `efk/helm-charts/efk-stack/values-production.yaml` for a production-ready configuration example.
 
-## Dépannage
+## Troubleshooting
 
-### Vérifier les logs de l'opérateur
+### Check Operator Logs
 
 ```bash
 kubectl logs -n system deployment/controller-manager
 ```
 
-### Vérifier le statut des composants
+### Check Component Status
 
 ```bash
 # Elasticsearch
@@ -254,9 +254,9 @@ kubectl get daemonset -n efk-system
 kubectl get deployment -n efk-system
 ```
 
-## Contribution
+## Contributing
 
-Les contributions sont les bienvenues! Veuillez consulter [CONTRIBUTING.md](CONTRIBUTING.md) pour les guidelines de contribution.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 - [Code of Conduct](CONTRIBUTING.md#code-of-conduct)
 - [Development Setup](docs/GETTING_STARTED.md)
@@ -283,7 +283,7 @@ not enough arguments in call to restmapper.NewShortcutExpander
 
 **Workaround**: This error can be safely ignored for now. The operator compiles and runs correctly. We're monitoring upstream fixes for this compatibility issue.
 
-## Licence
+## License
 
 Apache License 2.0
 

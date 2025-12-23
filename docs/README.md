@@ -1,61 +1,61 @@
-# Documentation EFK Stack Operator
+# EFK Stack Operator Documentation
 
-Ce dossier contient toute la documentation du projet EFK Stack Operator.
+This directory contains all documentation for the EFK Stack Operator project.
 
-## 📚 Guides disponibles
+## 📚 Available Guides
 
-### Pour les utilisateurs
-- **[USER_GUIDE.md](USER_GUIDE.md)** - Guide complet pour installer et utiliser l'opérateur
-  - Installation de l'opérateur
-  - Utilisation basique et avancée
-  - Configuration des composants
-  - Dépannage
-  - Mise à jour et maintenance
+### For Users
+- **[USER_GUIDE.md](USER_GUIDE.md)** - Complete guide to install and use the operator
+  - Operator installation
+  - Basic and advanced usage
+  - Component configuration
+  - Troubleshooting
+  - Updates and maintenance
 
-### Pour les développeurs
-- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Guide de démarrage rapide
-  - Installation de l'environnement de développement
-  - Tests rapides
-  - Commandes de développement
-- **[TESTING.md](TESTING.md)** - Guide complet de test et validation
-  - Tests unitaires et d'intégration
-  - Validation des composants
-  - Dépannage des tests
+### For Developers
+- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Quick start guide
+  - Development environment setup
+  - Quick tests
+  - Development commands
+- **[TESTING.md](TESTING.md)** - Complete testing and validation guide
+  - Unit and integration tests
+  - Component validation
+  - Test troubleshooting
 
-### Documentation technique
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architecture et structure du projet
-  - Organisation des répertoires
-  - Description des composants
-  - Conventions et bonnes pratiques
+### Technical Documentation
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Project architecture and structure
+  - Directory organization
+  - Component descriptions
+  - Conventions and best practices
 
-## 🚀 Démarrage rapide
+## 🚀 Quick Start
 
-### En tant qu'utilisateur
-1. Consultez **[USER_GUIDE.md](USER_GUIDE.md)** pour installer et utiliser l'opérateur
-2. Suivez les exemples de configuration
-3. Consultez la section dépannage si nécessaire
+### As a User
+1. See **[USER_GUIDE.md](USER_GUIDE.md)** to install and use the operator
+2. Follow the configuration examples
+3. Check the troubleshooting section if needed
 
-### En tant que développeur
-1. Lisez **[GETTING_STARTED.md](GETTING_STARTED.md)** pour configurer l'environnement
-2. Suivez les tests rapides pour valider l'installation
-3. Consultez **[TESTING.md](TESTING.md)** pour les tests complets
-4. Explorez **[ARCHITECTURE.md](ARCHITECTURE.md)** pour comprendre la structure
+### As a Developer
+1. Read **[GETTING_STARTED.md](GETTING_STARTED.md)** to set up the environment
+2. Follow the quick tests to validate the installation
+3. See **[TESTING.md](TESTING.md)** for complete tests
+4. Explore **[ARCHITECTURE.md](ARCHITECTURE.md)** to understand the structure
 
-## 📖 Structure de la documentation
+## 📖 Documentation Structure
 
 ```
 docs/
-├── README.md           # Ce fichier (index de la documentation)
-├── USER_GUIDE.md       # Guide utilisateur (installation/utilisation)
-├── GETTING_STARTED.md  # Guide de démarrage pour développeurs
-├── TESTING.md          # Guide complet de test
-└── ARCHITECTURE.md     # Architecture du projet
+├── README.md           # This file (documentation index)
+├── USER_GUIDE.md       # User guide (installation/usage)
+├── GETTING_STARTED.md  # Getting started guide for developers
+├── TESTING.md          # Complete testing guide
+└── ARCHITECTURE.md     # Project architecture
 ```
 
-## 🔗 Liens utiles
+## 🔗 Useful Links
 
-- **Repository GitHub** : [https://github.com/zlorgoncho1/efk-operator](https://github.com/zlorgoncho1/efk-operator)
-- **README principal** : [../README.md](../README.md)
-- **Contributing** : [../CONTRIBUTING.md](../CONTRIBUTING.md)
-- **Changelog** : [../CHANGELOG.md](../CHANGELOG.md)
+- **GitHub Repository**: [https://github.com/zlorgoncho1/efk-operator](https://github.com/zlorgoncho1/efk-operator)
+- **Main README**: [../README.md](../README.md)
+- **Contributing**: [../CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Changelog**: [../CHANGELOG.md](../CHANGELOG.md)
 

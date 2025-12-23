@@ -1,103 +1,103 @@
-# Guide de Test - EFK Stack Operator
+# Testing Guide - EFK Stack Operator
 
-Ce guide vous permet de tester que tout est opérationnel avant de continuer.
+This guide allows you to test that everything is operational before continuing.
 
-## Prérequis
+## Prerequisites
 
-- Docker et Docker Compose installés
-- Accès à un cluster Kubernetes (optionnel pour les tests de base)
-- `kubectl` configuré (optionnel)
+- Docker and Docker Compose installed
+- Access to a Kubernetes cluster (optional for basic tests)
+- `kubectl` configured (optional)
 
-## Tests à effectuer
+## Tests to Perform
 
-### 1. Vérification de la structure du projet
+### 1. Project Structure Verification
 
 ```bash
 cd efk
 ls -la
 ```
 
-Vous devriez voir :
-- `api/` - Définitions CRD
-- `config/` - Manifests Kubernetes
-- `docker/` - Configuration Docker
-- `helm-charts/` - Charts Helm
-- `internal/` - Code interne
-- `main.go` - Point d'entrée
-- `go.mod` - Dépendances
-- `Makefile` - Makefile principal
+You should see:
+- `api/` - CRD definitions
+- `config/` - Kubernetes manifests
+- `docker/` - Docker configuration
+- `helm-charts/` - Helm charts
+- `internal/` - Internal code
+- `main.go` - Entry point
+- `go.mod` - Dependencies
+- `Makefile` - Main Makefile
 
-### 2. Test de l'environnement Docker
+### 2. Docker Environment Test
 
 ```bash
-# Construire l'image de développement
+# Build development image
 make docker-build
 
-# Vérifier que l'image est créée
+# Verify that the image is created
 docker images | grep efk-operator-dev
 
-# Démarrer l'environnement
+# Start environment
 make dev-up
 
-# Vérifier que le conteneur tourne
+# Verify that the container is running
 docker ps | grep efk-operator-dev
 
-# Tester un shell dans le conteneur
+# Test a shell in the container
 make dev-shell
-# Dans le shell, tester :
+# In the shell, test:
 #   - kubebuilder version
 #   - helm version
 #   - kubectl version
 #   - go version
-# Sortir avec 'exit'
+# Exit with 'exit'
 ```
 
-### 3. Test de la génération des manifests CRD
+### 3. CRD Manifest Generation Test
 
 ```bash
-# Générer les manifests CRD
+# Generate CRD manifests
 make manifests
 
-# Vérifier que les fichiers sont générés
+# Verify that files are generated
 ls -la config/crd/bases/
 
-# Vous devriez voir :
+# You should see:
 # logging.efk.crds.io_efkstacks.yaml
 ```
 
-### 4. Test de la génération du code
+### 4. Code Generation Test
 
 ```bash
-# Générer le code (deepcopy, etc.)
+# Generate code (deepcopy, etc.)
 make generate
 
-# Vérifier que les fichiers générés sont créés
+# Verify that generated files are created
 ls -la api/v1/zz_generated.*
 ```
 
-### 5. Test de compilation
+### 5. Compilation Test
 
 ```bash
-# Formater le code
+# Format code
 make fmt
 
-# Vérifier le code
+# Verify code
 make vet
 
-# Construire le binaire
+# Build binary
 make build
 
-# Vérifier que le binaire est créé
+# Verify that binary is created
 ls -la bin/manager
 ```
 
-### 6. Test des dépendances Go
+### 6. Go Dependencies Test
 
 ```bash
-# Dans le conteneur Docker
+# In Docker container
 make dev-shell
 
-# Dans le shell :
+# In the shell:
 cd /workspace
 go mod download
 go mod verify
@@ -105,23 +105,23 @@ go mod tidy
 exit
 ```
 
-### 7. Test de validation des fichiers YAML
+### 7. YAML File Validation Test
 
 ```bash
-# Vérifier les manifests Kubernetes
+# Verify Kubernetes manifests
 make dev-shell
-# Dans le shell :
+# In the shell:
 kubectl apply --dry-run=client -f config/crd/bases/
 kubectl apply --dry-run=client -f config/rbac/
 kubectl apply --dry-run=client -f config/manager/
 exit
 ```
 
-### 8. Test des charts Helm (validation)
+### 8. Helm Charts Test (validation)
 
 ```bash
 make dev-shell
-# Dans le shell :
+# In the shell:
 cd helm-charts/efk-stack/elasticsearch
 helm lint .
 helm template . --debug
@@ -134,23 +134,23 @@ helm template . --debug
 exit
 ```
 
-### 9. Test des imports Go
+### 9. Go Imports Test
 
 ```bash
 make dev-shell
-# Dans le shell :
+# In the shell:
 go build ./...
 go test ./... -v
 exit
 ```
 
-### 10. Test complet (tous les checks)
+### 10. Complete Test (all checks)
 
 ```bash
-# Exécuter tous les checks
+# Run all checks
 make all
 
-# Ou étape par étape :
+# Or step by step:
 make manifests
 make generate
 make fmt
@@ -159,69 +159,69 @@ make test
 make build
 ```
 
-## Checklist de validation
+## Validation Checklist
 
-- [ ] Structure du projet complète
-- [ ] Image Docker se construit sans erreur
-- [ ] Conteneur démarre correctement
-- [ ] Outils disponibles dans le conteneur (kubebuilder, helm, kubectl, go)
-- [ ] Manifests CRD générés
-- [ ] Code généré (deepcopy)
-- [ ] Code se compile sans erreur
-- [ ] Code passe `go vet`
-- [ ] Tests unitaires passent
-- [ ] Charts Helm valides (lint)
-- [ ] Imports Go corrects
-- [ ] Binaire créé et exécutable
+- [ ] Complete project structure
+- [ ] Docker image builds without error
+- [ ] Container starts correctly
+- [ ] Tools available in container (kubebuilder, helm, kubectl, go)
+- [ ] CRD manifests generated
+- [ ] Code generated (deepcopy)
+- [ ] Code compiles without error
+- [ ] Code passes `go vet`
+- [ ] Unit tests pass
+- [ ] Helm charts valid (lint)
+- [ ] Go imports correct
+- [ ] Binary created and executable
 
-## Dépannage
+## Troubleshooting
 
-### Erreur : "docker-compose: command not found"
+### Error: "docker-compose: command not found"
 ```bash
-# Installer Docker Compose ou utiliser :
+# Install Docker Compose or use:
 docker compose -f docker/docker-compose.yml build
 ```
 
-### Erreur : "go.mod: module path mismatch"
+### Error: "go.mod: module path mismatch"
 ```bash
-# Vérifier que go.mod utilise le bon chemin :
+# Verify that go.mod uses the correct path:
 # module github.com/zlorgoncho1/efk-operator
 ```
 
-### Erreur : "import path not found"
+### Error: "import path not found"
 ```bash
-# Dans le conteneur :
+# In the container:
 go mod download
 go mod tidy
 ```
 
-### Erreur : "kubebuilder: command not found"
+### Error: "kubebuilder: command not found"
 ```bash
-# Vérifier que l'image Docker est bien construite avec kubebuilder
+# Verify that Docker image is built with kubebuilder
 make docker-build
 ```
 
-## Tests avancés (optionnel)
+## Advanced Tests (optional)
 
-### Test avec un cluster Kubernetes local (kind)
+### Test with Local Kubernetes Cluster (kind)
 
 ```bash
-# Installer kind dans le conteneur
+# Install kind in container
 make dev-shell
-# Dans le shell :
+# In the shell:
 kind create cluster --name efk-test
 kubectl cluster-info
 
-# Installer les CRDs
+# Install CRDs
 make install
 
-# Créer une ressource EFKStack de test
+# Create test EFKStack resource
 kubectl apply -f config/samples/logging_v1_efkstack.yaml
 
-# Vérifier
+# Verify
 kubectl get efkstack
 
-# Nettoyer
+# Cleanup
 kind delete cluster --name efk-test
 exit
 ```

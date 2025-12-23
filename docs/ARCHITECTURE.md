@@ -1,132 +1,132 @@
-# Architecture du Projet EFK Stack Operator
+# EFK Stack Operator Project Architecture
 
-Ce document décrit l'organisation et la structure du projet.
+This document describes the organization and structure of the project.
 
-## Structure des répertoires
+## Directory Structure
 
 ```
 efk/
-├── api/                          # Définitions des API (CRDs)
+├── api/                          # API definitions (CRDs)
 │   └── v1/
-│       ├── efkstack_types.go     # Types Go pour EFKStack CRD
-│       ├── groupversion_info.go  # Informations de version du groupe API
-│       └── zz_generated.*        # Code généré (deepcopy, etc.)
+│       ├── efkstack_types.go     # Go types for EFKStack CRD
+│       ├── groupversion_info.go  # API group version information
+│       └── zz_generated.*        # Generated code (deepcopy, etc.)
 │
-├── config/                       # Manifests Kubernetes
+├── config/                       # Kubernetes manifests
 │   ├── crd/                     # Custom Resource Definitions
-│   │   ├── bases/               # CRDs de base
-│   │   └── patches/             # Patches pour les CRDs
-│   ├── default/                 # Configuration par défaut
-│   ├── manager/                 # Manifests pour le manager
-│   ├── rbac/                    # RBAC (rôles, bindings, service accounts)
-│   └── samples/                 # Exemples de ressources EFKStack
+│   │   ├── bases/               # Base CRDs
+│   │   └── patches/             # CRD patches
+│   ├── default/                 # Default configuration
+│   ├── manager/                 # Manager manifests
+│   ├── rbac/                    # RBAC (roles, bindings, service accounts)
+│   └── samples/                 # EFKStack resource examples
 │
-├── docker/                       # Configuration Docker
-│   ├── Dockerfile               # Image de production
-│   ├── Dockerfile.dev           # Image de développement
-│   └── docker-compose.yml       # Compose pour l'environnement de dev
+├── docker/                       # Docker configuration
+│   ├── Dockerfile               # Production image
+│   ├── Dockerfile.dev           # Development image
+│   └── docker-compose.yml       # Compose for dev environment
 │
 ├── docs/                        # Documentation
-│   ├── README.md                # Index de la documentation
-│   ├── GETTING_STARTED.md       # Guide de démarrage
-│   ├── USER_GUIDE.md            # Guide utilisateur
-│   ├── TESTING.md               # Guide complet de test
-│   └── ARCHITECTURE.md          # Ce fichier
+│   ├── README.md                # Documentation index
+│   ├── GETTING_STARTED.md       # Getting started guide
+│   ├── USER_GUIDE.md            # User guide
+│   ├── TESTING.md               # Complete testing guide
+│   └── ARCHITECTURE.md          # This file
 │
-├── hack/                        # Scripts et utilitaires
-│   └── boilerplate.go.txt       # En-tête pour les fichiers générés
+├── hack/                        # Scripts and utilities
+│   └── boilerplate.go.txt       # Header for generated files
 │
-├── helm-charts/                 # Charts Helm pour les composants
+├── helm-charts/                 # Helm charts for components
 │   └── efk-stack/
-│       ├── Chart.yaml           # Métadonnées du chart principal
-│       ├── values.yaml           # Valeurs par défaut
-│       ├── values-development.yaml  # Valeurs pour développement
-│       ├── values-production.yaml   # Valeurs pour production
-│       ├── elasticsearch/        # Chart Elasticsearch
-│       ├── fluentbit/            # Chart Fluent Bit
-│       └── kibana/               # Chart Kibana
+│       ├── Chart.yaml           # Main chart metadata
+│       ├── values.yaml           # Default values
+│       ├── values-development.yaml  # Development values
+│       ├── values-production.yaml   # Production values
+│       ├── elasticsearch/        # Elasticsearch chart
+│       ├── fluentbit/            # Fluent Bit chart
+│       └── kibana/               # Kibana chart
 │
-├── internal/                     # Code interne (non exposé)
-│   ├── controller/              # Contrôleurs
-│   │   ├── efkstack_controller.go      # Contrôleur principal
-│   │   ├── efkstack_controller_test.go # Tests du contrôleur
-│   │   └── suite_test.go              # Suite de tests
-│   └── helm/                     # Client Helm
-│       └── client.go             # Client Helm pour déploiement
+├── internal/                     # Internal code (not exposed)
+│   ├── controller/              # Controllers
+│   │   ├── efkstack_controller.go      # Main controller
+│   │   ├── efkstack_controller_test.go # Controller tests
+│   │   └── suite_test.go              # Test suite
+│   └── helm/                     # Helm client
+│       └── client.go             # Helm client for deployment
 │
-├── scripts/                      # Scripts utilitaires
-│   ├── test-all.sh              # Script de test (Linux/Mac)
-│   └── test-all.ps1             # Script de test (Windows)
+├── scripts/                      # Utility scripts
+│   ├── test-all.sh              # Test script (Linux/Mac)
+│   └── test-all.ps1             # Test script (Windows)
 │
-├── .gitignore                    # Fichiers ignorés par Git
-├── .dockerignore                 # Fichiers ignorés par Docker
-├── go.mod                        # Dépendances Go
-├── go.sum                        # Checksums des dépendances
-├── main.go                       # Point d'entrée de l'opérateur
-├── Makefile                      # Makefile principal
-├── Makefile.kubebuilder          # Makefile Kubebuilder
-├── PROJECT                       # Configuration Kubebuilder
-└── README.md                     # Documentation principale
+├── .gitignore                    # Files ignored by Git
+├── .dockerignore                 # Files ignored by Docker
+├── go.mod                        # Go dependencies
+├── go.sum                        # Dependency checksums
+├── main.go                       # Operator entry point
+├── Makefile                      # Main Makefile
+├── Makefile.kubebuilder          # Kubebuilder Makefile
+├── PROJECT                       # Kubebuilder configuration
+└── README.md                     # Main documentation
 ```
 
-## Description des répertoires
+## Directory Descriptions
 
 ### `api/`
-Contient les définitions des Custom Resource Definitions (CRDs) en Go. Les fichiers `zz_generated.*` sont générés automatiquement par `controller-gen`.
+Contains Custom Resource Definition (CRD) definitions in Go. The `zz_generated.*` files are automatically generated by `controller-gen`.
 
 ### `config/`
-Manifests Kubernetes pour :
-- **crd/** : Définitions des CRDs
-- **rbac/** : Rôles et permissions
-- **manager/** : Déploiement du manager
-- **samples/** : Exemples d'utilisation
+Kubernetes manifests for:
+- **crd/**: CRD definitions
+- **rbac/**: Roles and permissions
+- **manager/**: Manager deployment
+- **samples/**: Usage examples
 
 ### `docker/`
-Configuration Docker pour le développement et la production :
-- **Dockerfile.dev** : Environnement de développement avec tous les outils
-- **Dockerfile** : Image de production pour l'opérateur
-- **docker-compose.yml** : Orchestration de l'environnement de dev
+Docker configuration for development and production:
+- **Dockerfile.dev**: Development environment with all tools
+- **Dockerfile**: Production image for the operator
+- **docker-compose.yml**: Dev environment orchestration
 
 ### `docs/`
-Toute la documentation du projet :
-- Guides de démarrage et d'utilisation
-- Documentation technique
-- Guides de test
+All project documentation:
+- Getting started and usage guides
+- Technical documentation
+- Testing guides
 
 ### `helm-charts/`
-Charts Helm pour déployer les composants EFK :
-- Charts individuels pour chaque composant
-- Fichiers de valeurs pour différents environnements
+Helm charts to deploy EFK components:
+- Individual charts for each component
+- Values files for different environments
 
 ### `internal/`
-Code interne non exposé :
-- **controller/** : Logique de réconciliation
-- **helm/** : Client Helm pour gérer les déploiements
+Internal code not exposed:
+- **controller/**: Reconciliation logic
+- **helm/**: Helm client to manage deployments
 
 ### `scripts/`
-Scripts utilitaires pour automatiser les tâches (tests, build, etc.)
+Utility scripts to automate tasks (tests, build, etc.)
 
-## Fichiers importants
+## Important Files
 
 ### `main.go`
-Point d'entrée de l'opérateur. Configure le manager et démarre les contrôleurs.
+Operator entry point. Configures the manager and starts controllers.
 
 ### `Makefile`
-Contient les commandes principales pour :
-- Build et test
-- Génération de code
-- Déploiement
-- Gestion Docker
+Contains main commands for:
+- Build and test
+- Code generation
+- Deployment
+- Docker management
 
 ### `go.mod` / `go.sum`
-Gestion des dépendances Go.
+Go dependency management.
 
 ### `PROJECT`
-Configuration Kubebuilder (domaine, repo, etc.)
+Kubebuilder configuration (domain, repo, etc.)
 
-## Organisation des Charts Helm
+## Helm Charts Organization
 
-Chaque composant (Elasticsearch, Fluent Bit, Kibana) a son propre chart dans `helm-charts/efk-stack/` :
+Each component (Elasticsearch, Fluent Bit, Kibana) has its own chart in `helm-charts/efk-stack/`:
 
 ```
 helm-charts/efk-stack/
@@ -145,23 +145,23 @@ helm-charts/efk-stack/
 
 ## Conventions
 
-- **Code Go** : Suit les conventions Go standard
-- **Charts Helm** : Suit les conventions Helm
-- **Documentation** : Markdown dans `docs/`
-- **Scripts** : Bash pour Linux/Mac, PowerShell pour Windows
+- **Go Code**: Follows standard Go conventions
+- **Helm Charts**: Follows Helm conventions
+- **Documentation**: Markdown in `docs/`
+- **Scripts**: Bash for Linux/Mac, PowerShell for Windows
 
-## Fichiers générés
+## Generated Files
 
-Les fichiers suivants sont générés automatiquement et ne doivent **pas** être modifiés manuellement :
+The following files are automatically generated and should **not** be modified manually:
 
-- `api/**/zz_generated.*` : Code généré par controller-gen
-- `config/crd/bases/*.yaml` : CRDs générés
-- `bin/` : Binaires compilés
+- `api/**/zz_generated.*`: Code generated by controller-gen
+- `config/crd/bases/*.yaml`: Generated CRDs
+- `bin/`: Compiled binaries
 
-## Pour en savoir plus
+## Learn More
 
-- [Guide de démarrage](GETTING_STARTED.md)
-- [Guide de test](TESTING.md)
-- [Guide utilisateur](USER_GUIDE.md)
-- [README principal](../README.md)
+- [Getting Started Guide](GETTING_STARTED.md)
+- [Testing Guide](TESTING.md)
+- [User Guide](USER_GUIDE.md)
+- [Main README](../README.md)
 

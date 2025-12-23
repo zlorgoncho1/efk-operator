@@ -1,43 +1,43 @@
-# Guide Utilisateur - EFK Stack Operator
+# User Guide - EFK Stack Operator
 
-Guide complet pour installer et utiliser l'opérateur EFK Stack dans votre cluster Kubernetes.
+Complete guide to install and use the EFK Stack operator in your Kubernetes cluster.
 
-## Table des matières
+## Table of Contents
 
-1. [Prérequis](#prérequis)
-2. [Installation de l'opérateur](#installation-de-lopérateur)
-3. [Utilisation basique](#utilisation-basique)
-4. [Configuration avancée](#configuration-avancée)
-5. [Dépannage](#dépannage)
-6. [Mise à jour et maintenance](#mise-à-jour-et-maintenance)
+1. [Prerequisites](#prerequisites)
+2. [Operator Installation](#operator-installation)
+3. [Basic Usage](#basic-usage)
+4. [Advanced Configuration](#advanced-configuration)
+5. [Troubleshooting](#troubleshooting)
+6. [Updates and Maintenance](#updates-and-maintenance)
 
-## Prérequis
+## Prerequisites
 
-### Exigences du cluster
+### Cluster Requirements
 
-- Kubernetes 1.24 ou supérieur
-- `kubectl` configuré et connecté à votre cluster
-- Accès administrateur au cluster (pour installer les CRDs et l'opérateur)
-- StorageClass configurée (pour les volumes persistants d'Elasticsearch)
+- Kubernetes 1.24 or higher
+- `kubectl` configured and connected to your cluster
+- Administrator access to the cluster (to install CRDs and operator)
+- StorageClass configured (for Elasticsearch persistent volumes)
 
-### Outils requis
+### Required Tools
 
-- `kubectl` (version compatible avec votre cluster)
-- `helm` v3.0+ (optionnel, pour certaines méthodes d'installation)
+- `kubectl` (version compatible with your cluster)
+- `helm` v3.0+ (optional, for certain installation methods)
 
-## Installation de l'opérateur
+## Operator Installation
 
-### Méthode 1 : Installation via Manifests (Recommandée)
+### Method 1: Installation via Manifests (Recommended)
 
-#### Étape 1 : Installer les CRDs
+#### Step 1: Install CRDs
 
-Vous pouvez installer directement depuis GitHub sans cloner le repository :
+You can install directly from GitHub without cloning the repository:
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/zlorgoncho1/efk-operator/main/efk/config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 ```
 
-**Alternative** : Si vous préférez cloner le repository pour développement :
+**Alternative**: If you prefer to clone the repository for development:
 
 ```bash
 git clone https://github.com/zlorgoncho1/efk-operator.git
@@ -45,68 +45,68 @@ cd efk-operator/efk
 kubectl apply -f config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 ```
 
-Vérifier l'installation :
+Verify installation:
 
 ```bash
 kubectl get crd efkstacks.logging.efk.crds.io
 ```
 
-#### Étape 2 : Déployer l'opérateur
+#### Step 2: Deploy the Operator
 
-**Option A : Depuis GitHub (sans cloner)**
+**Option A: From GitHub (without cloning)**
 
 ```bash
-# Créer le namespace pour l'opérateur
+# Create namespace for operator
 kubectl create namespace system
 
-# Déployer l'opérateur (nécessite kustomize)
+# Deploy operator (requires kustomize)
 kubectl apply -k https://github.com/zlorgoncho1/efk-operator.git/efk/config/default
 ```
 
-**Option B : Après avoir cloné le repository**
+**Option B: After cloning the repository**
 
 ```bash
-# Créer le namespace pour l'opérateur
+# Create namespace for operator
 kubectl create namespace system
 
-# Déployer l'opérateur
+# Deploy operator
 kubectl apply -k config/default
 ```
 
-**Note** : Avant de déployer, vous devez mettre à jour l'image de l'opérateur dans `config/default/manager_image_patch.yaml` avec votre image Docker, ou utiliser `kustomize edit set image` pour modifier l'image.
+**Note**: Before deploying, you must update the operator image in `config/default/manager_image_patch.yaml` with your Docker image, or use `kustomize edit set image` to modify the image.
 
-#### Étape 5 : Vérifier le déploiement
+#### Step 3: Verify Deployment
 
 ```bash
-# Vérifier que l'opérateur est déployé
+# Verify that operator is deployed
 kubectl get deployment -n system controller-manager
 
-# Vérifier les pods
+# Verify pods
 kubectl get pods -n system
 
-# Vérifier les logs
+# Verify logs
 kubectl logs -n system deployment/controller-manager -f
 ```
 
-### Méthode 2 : Installation via Helm (Si chart disponible)
+### Method 2: Installation via Helm (If chart available)
 
 ```bash
-# Ajouter le repository Helm (quand disponible)
+# Add Helm repository (when available)
 helm repo add efk-operator https://zlorgoncho1.github.io/efk-operator
 
-# Installer l'opérateur
+# Install operator
 helm install efk-operator efk-operator/efk-operator \
   --namespace system \
   --create-namespace
 ```
 
-## Utilisation basique
+## Basic Usage
 
-### Créer votre première stack EFK
+### Create Your First EFK Stack
 
-#### Exemple minimal
+#### Minimal Example
 
-Créez un fichier `my-efk-stack.yaml` :
+Create a `my-efk-stack.yaml` file:
 
 ```yaml
 apiVersion: logging.efk.crds.io/v1
@@ -151,46 +151,46 @@ spec:
         memory: "1Gi"
 ```
 
-#### Appliquer la ressource
+#### Apply the Resource
 
 ```bash
-# Créer le namespace (si nécessaire)
+# Create namespace (if necessary)
 kubectl create namespace efk-system
 
-# Appliquer la ressource
+# Apply the resource
 kubectl apply -f my-efk-stack.yaml
 ```
 
-#### Vérifier le statut
+#### Check Status
 
 ```bash
-# Voir le statut de la ressource
+# View resource status
 kubectl get efkstack my-efk-stack -n efk-system
 
-# Voir les détails
+# View details
 kubectl describe efkstack my-efk-stack -n efk-system
 
-# Vérifier les composants déployés
+# Verify deployed components
 kubectl get all -n efk-system
 ```
 
-### Exemple production
+### Production Example
 
-Voir `config/samples/logging_v1_efkstack.yaml` pour un exemple complet avec :
-- Haute disponibilité (3 replicas Elasticsearch, 2 Kibana)
-- Configuration de sécurité (TLS, authentification)
-- Ingress pour Kibana
-- Ressources optimisées
+See `config/samples/logging_v1_efkstack.yaml` for a complete example with:
+- High availability (3 Elasticsearch replicas, 2 Kibana)
+- Security configuration (TLS, authentication)
+- Ingress for Kibana
+- Optimized resources
 
-## Configuration avancée
+## Advanced Configuration
 
-### Options de configuration Elasticsearch
+### Elasticsearch Configuration Options
 
 ```yaml
 spec:
   elasticsearch:
-    version: "8.11.0"              # Version d'Elasticsearch
-    replicas: 3                    # Nombre de replicas (minimum 1, recommandé 3+)
+    version: "8.11.0"              # Elasticsearch version
+    replicas: 3                    # Number of replicas (minimum 1, recommended 3+)
     resources:
       requests:
         cpu: "2"
@@ -199,20 +199,20 @@ spec:
         cpu: "4"
         memory: "8Gi"
     storage:
-      size: "100Gi"                # Taille du stockage (format: 100Gi, 500Mi)
-      storageClassName: "fast-ssd" # StorageClass à utiliser
+      size: "100Gi"                # Storage size (format: 100Gi, 500Mi)
+      storageClassName: "fast-ssd" # StorageClass to use
       volumeType: "persistentVolumeClaim"
     security:
-      tlsEnabled: true             # Activer TLS
-      authEnabled: true            # Activer l'authentification
-      tlsSecretName: "es-tls"      # Secret contenant les certificats TLS
-      authSecretName: "es-auth"    # Secret contenant les credentials
-    config:                        # Configuration additionnelle
+      tlsEnabled: true             # Enable TLS
+      authEnabled: true            # Enable authentication
+      tlsSecretName: "es-tls"      # Secret containing TLS certificates
+      authSecretName: "es-auth"    # Secret containing credentials
+    config:                        # Additional configuration
       discovery.type: "kubernetes"
       xpack.security.enabled: "true"
 ```
 
-### Options de configuration Fluent Bit
+### Fluent Bit Configuration Options
 
 ```yaml
 spec:
@@ -243,13 +243,13 @@ spec:
           Port 9200
 ```
 
-### Options de configuration Kibana
+### Kibana Configuration Options
 
 ```yaml
 spec:
   kibana:
     version: "8.11.0"
-    replicas: 2                    # Nombre de replicas (recommandé 2+)
+    replicas: 2                    # Number of replicas (recommended 2+)
     resources:
       requests:
         cpu: "1"
@@ -270,44 +270,44 @@ spec:
           secretName: kibana-tls
 ```
 
-### Configuration globale
+### Global Configuration
 
 ```yaml
 spec:
   global:
-    storageClass: "fast-ssd"       # StorageClass par défaut
-    imageRegistry: "registry.example.com"  # Registry d'images personnalisé
+    storageClass: "fast-ssd"       # Default StorageClass
+    imageRegistry: "registry.example.com"  # Custom image registry
     tls:
       enabled: true
       secretName: "global-tls"
 ```
 
-## Dépannage
+## Troubleshooting
 
-### Vérifier le statut de l'opérateur
+### Check Operator Status
 
 ```bash
-# Vérifier que l'opérateur fonctionne
+# Verify that operator is running
 kubectl get pods -n system -l control-plane=controller-manager
 
-# Voir les logs de l'opérateur
+# View operator logs
 kubectl logs -n system deployment/controller-manager -f
 ```
 
-### Vérifier le statut de la stack EFK
+### Check EFK Stack Status
 
 ```bash
-# Voir le statut de la ressource EFKStack
+# View EFKStack resource status
 kubectl get efkstack -n efk-system
 
-# Voir les détails (phase, état des composants)
+# View details (phase, component status)
 kubectl describe efkstack my-efk-stack -n efk-system
 
-# Voir les événements
+# View events
 kubectl get events -n efk-system --sort-by='.lastTimestamp'
 ```
 
-### Vérifier les composants individuels
+### Check Individual Components
 
 ```bash
 # Elasticsearch
@@ -326,233 +326,233 @@ kubectl get pods -n efk-system -l app=kibana
 kubectl logs -n efk-system -l app=kibana -f
 ```
 
-### Problèmes courants
+### Common Issues
 
-#### La stack reste en phase "Pending" ou "Deploying"
+#### Stack Stays in "Pending" or "Deploying" Phase
 
-**Causes possibles** :
-- L'opérateur n'est pas démarré
-- Problème de permissions RBAC
-- Problème de stockage (StorageClass non disponible)
+**Possible causes**:
+- Operator is not started
+- RBAC permission issue
+- Storage issue (StorageClass not available)
 
-**Solutions** :
+**Solutions**:
 ```bash
-# Vérifier l'opérateur
+# Verify operator
 kubectl get pods -n system
 
-# Vérifier les permissions
+# Verify permissions
 kubectl describe role -n system manager-role
 
-# Vérifier les StorageClasses
+# Verify StorageClasses
 kubectl get storageclass
 ```
 
-#### Elasticsearch ne démarre pas
+#### Elasticsearch Won't Start
 
-**Causes possibles** :
-- Problème de stockage (PVC non créé)
-- Ressources insuffisantes
-- Problème de configuration
+**Possible causes**:
+- Storage issue (PVC not created)
+- Insufficient resources
+- Configuration issue
 
-**Solutions** :
+**Solutions**:
 ```bash
-# Vérifier les PVCs
+# Verify PVCs
 kubectl get pvc -n efk-system
 
-# Vérifier les événements
+# Verify events
 kubectl describe statefulset -n efk-system
 
-# Vérifier les ressources disponibles
+# Verify available resources
 kubectl top nodes
 ```
 
-#### Fluent Bit ne collecte pas les logs
+#### Fluent Bit Not Collecting Logs
 
-**Causes possibles** :
-- Elasticsearch n'est pas accessible
-- Configuration Fluent Bit incorrecte
-- Problème de permissions
+**Possible causes**:
+- Elasticsearch not accessible
+- Incorrect Fluent Bit configuration
+- Permission issue
 
-**Solutions** :
+**Solutions**:
 ```bash
-# Vérifier la connexion à Elasticsearch
+# Verify connection to Elasticsearch
 kubectl exec -n efk-system <fluent-bit-pod> -- curl http://<elasticsearch-service>:9200
 
-# Vérifier les logs Fluent Bit
+# Verify Fluent Bit logs
 kubectl logs -n efk-system -l app=fluent-bit
 
-# Vérifier la configuration
+# Verify configuration
 kubectl get configmap -n efk-system
 ```
 
-#### Kibana n'est pas accessible
+#### Kibana Not Accessible
 
-**Causes possibles** :
-- Ingress non configuré ou mal configuré
-- Elasticsearch non accessible depuis Kibana
-- Problème de certificats TLS
+**Possible causes**:
+- Ingress not configured or misconfigured
+- Elasticsearch not accessible from Kibana
+- TLS certificate issue
 
-**Solutions** :
+**Solutions**:
 ```bash
-# Vérifier l'Ingress
+# Verify Ingress
 kubectl get ingress -n efk-system
 
-# Vérifier les services
+# Verify services
 kubectl get svc -n efk-system
 
-# Tester la connexion interne
+# Test internal connection
 kubectl port-forward -n efk-system svc/kibana 5601:5601
-# Puis accéder à http://localhost:5601
+# Then access http://localhost:5601
 ```
 
-### Commandes utiles
+### Useful Commands
 
 ```bash
-# Voir tous les releases Helm créés par l'opérateur
+# View all Helm releases created by operator
 helm list -n efk-system
 
-# Voir les détails d'un release Helm
+# View Helm release details
 helm status <release-name> -n efk-system
 
-# Voir l'historique d'un release
+# View release history
 helm history <release-name> -n efk-system
 
-# Voir les ressources créées
+# View created resources
 kubectl get all -n efk-system
 
-# Voir les secrets créés
+# View created secrets
 kubectl get secrets -n efk-system
 
-# Voir les configmaps
+# View configmaps
 kubectl get configmaps -n efk-system
 ```
 
-## Mise à jour et maintenance
+## Updates and Maintenance
 
-### Mettre à jour l'opérateur
+### Update the Operator
 
 ```bash
-# 1. Récupérer la nouvelle version
+# 1. Get the new version
 git pull origin main
 
-# 2. Régénérer les manifests (si nécessaire)
+# 2. Regenerate manifests (if necessary)
 make manifests
 
-# 3. Mettre à jour les CRDs
+# 3. Update CRDs
 kubectl apply -f config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 
-# 4. Mettre à jour l'opérateur
+# 4. Update operator
 kubectl apply -k config/default
 
-# 5. Vérifier le déploiement
+# 5. Verify deployment
 kubectl rollout status deployment/controller-manager -n system
 ```
 
-### Mettre à jour une stack EFK
+### Update an EFK Stack
 
-Pour mettre à jour une stack existante, modifiez simplement la ressource EFKStack :
+To update an existing stack, simply modify the EFKStack resource:
 
 ```bash
-# Modifier la ressource
+# Edit the resource
 kubectl edit efkstack my-efk-stack -n efk-system
 
-# Ou appliquer un nouveau fichier
+# Or apply a new file
 kubectl apply -f my-efk-stack-updated.yaml
 ```
 
-L'opérateur détectera les changements et mettra à jour les composants via Helm.
+The operator will detect changes and update components via Helm.
 
-### Backup et restauration
+### Backup and Restore
 
-#### Backup d'Elasticsearch
+#### Elasticsearch Backup
 
 ```bash
-# Créer un snapshot (nécessite un repository configuré)
+# Create a snapshot (requires a configured repository)
 kubectl exec -n efk-system <elasticsearch-pod> -- \
   curl -X PUT "localhost:9200/_snapshot/my_backup/snapshot_1?wait_for_completion=true"
 ```
 
-#### Restauration
+#### Restore
 
 ```bash
-# Restaurer depuis un snapshot
+# Restore from a snapshot
 kubectl exec -n efk-system <elasticsearch-pod> -- \
   curl -X POST "localhost:9200/_snapshot/my_backup/snapshot_1/_restore"
 ```
 
-### Désinstallation
+### Uninstallation
 
-#### Supprimer une stack EFK
+#### Remove an EFK Stack
 
 ```bash
-# Supprimer la ressource EFKStack
+# Delete the EFKStack resource
 kubectl delete efkstack my-efk-stack -n efk-system
 
-# L'opérateur supprimera automatiquement tous les composants
-# Vérifier que tout est supprimé
+# The operator will automatically remove all components
+# Verify that everything is removed
 kubectl get all -n efk-system
 ```
 
-#### Désinstaller l'opérateur
+#### Uninstall the Operator
 
 ```bash
-# Supprimer l'opérateur
+# Remove operator
 kubectl delete -k config/default
 
-# Supprimer les CRDs (ATTENTION : supprime aussi toutes les ressources EFKStack)
+# Remove CRDs (WARNING: also removes all EFKStack resources)
 kubectl delete -f config/crd/bases/logging.efk.crds.io_efkstacks.yaml
 ```
 
-## Bonnes pratiques
+## Best Practices
 
 ### Production
 
-1. **Haute disponibilité** :
-   - Utilisez au moins 3 replicas pour Elasticsearch
-   - Utilisez au moins 2 replicas pour Kibana
-   - Configurez Pod Disruption Budgets
+1. **High Availability**:
+   - Use at least 3 replicas for Elasticsearch
+   - Use at least 2 replicas for Kibana
+   - Configure Pod Disruption Budgets
 
-2. **Sécurité** :
-   - Activez toujours TLS
-   - Activez l'authentification
-   - Utilisez des secrets Kubernetes pour les certificats et credentials
-   - Configurez Network Policies
+2. **Security**:
+   - Always enable TLS
+   - Enable authentication
+   - Use Kubernetes secrets for certificates and credentials
+   - Configure Network Policies
 
-3. **Stockage** :
-   - Utilisez des StorageClasses performantes (SSD)
-   - Planifiez la taille du stockage selon vos besoins de rétention
-   - Configurez des snapshots réguliers
+3. **Storage**:
+   - Use high-performance StorageClasses (SSD)
+   - Plan storage size according to your retention needs
+   - Configure regular snapshots
 
-4. **Monitoring** :
-   - Surveillez les ressources (CPU, mémoire, stockage)
-   - Configurez des alertes sur les composants
-   - Surveillez les logs de l'opérateur
+4. **Monitoring**:
+   - Monitor resources (CPU, memory, storage)
+   - Configure alerts on components
+   - Monitor operator logs
 
-5. **Backup** :
-   - Configurez des snapshots Elasticsearch réguliers
-   - Testez la restauration régulièrement
-   - Stockez les backups hors du cluster
+5. **Backup**:
+   - Configure regular Elasticsearch snapshots
+   - Test restoration regularly
+   - Store backups outside the cluster
 
-### Développement/Test
+### Development/Test
 
-- Utilisez 1 replica pour Elasticsearch et Kibana
-- Désactivez TLS pour simplifier (non recommandé en production)
-- Utilisez des StorageClasses moins performantes
-- Réduisez les ressources allouées
+- Use 1 replica for Elasticsearch and Kibana
+- Disable TLS to simplify (not recommended in production)
+- Use less performant StorageClasses
+- Reduce allocated resources
 
-## Exemples de configurations
+## Configuration Examples
 
-### Configuration minimale (développement)
+### Minimal Configuration (Development)
 
-Voir `config/samples/logging_v1_efkstack.yaml` pour un exemple complet.
+See `config/samples/logging_v1_efkstack.yaml` for a complete example.
 
-### Configuration production
+### Production Configuration
 
-Voir `helm-charts/efk-stack/values-production.yaml` pour un exemple de configuration production-ready.
+See `helm-charts/efk-stack/values-production.yaml` for a production-ready configuration example.
 
 ## Support
 
-- **Issues** : [GitHub Issues](https://github.com/zlorgoncho1/efk-operator/issues)
-- **Documentation** : [docs/](docs/)
-- **Contributions** : Voir [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Issues**: [GitHub Issues](https://github.com/zlorgoncho1/efk-operator/issues)
+- **Documentation**: [docs/](docs/)
+- **Contributions**: See [CONTRIBUTING.md](../CONTRIBUTING.md)
 
