@@ -29,8 +29,6 @@ spec:
           value: {{ .Values.elasticsearch.port | quote }}
         - name: ELASTICSEARCH_INDEX
           value: {{ .Values.elasticsearch.index | quote }}
-        - name: ELASTICSEARCH_TYPE
-          value: {{ .Values.elasticsearch.type | quote }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:

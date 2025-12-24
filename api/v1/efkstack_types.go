@@ -298,6 +298,10 @@ type ElasticsearchStatus struct {
 	// URL du cluster
 	// +optional
 	URL string `json:"url,omitempty"`
+
+	// Message d'erreur ou d'information
+	// +optional
+	Message string `json:"message,omitempty"`
 }
 
 // FluentBitStatus defines Fluent Bit status
@@ -313,6 +317,10 @@ type FluentBitStatus struct {
 	// Version déployée
 	// +optional
 	Version string `json:"version,omitempty"`
+
+	// Message d'erreur ou d'information
+	// +optional
+	Message string `json:"message,omitempty"`
 }
 
 // KibanaStatus defines Kibana status
@@ -332,6 +340,10 @@ type KibanaStatus struct {
 	// URL d'accès
 	// +optional
 	URL string `json:"url,omitempty"`
+
+	// Message d'erreur ou d'information
+	// +optional
+	Message string `json:"message,omitempty"`
 }
 
 //+kubebuilder:object:root=true

@@ -84,20 +84,21 @@ func (c *Client) install(ctx context.Context, releaseName, chartPath string, val
 	installAction.ReleaseName = releaseName
 	installAction.Namespace = c.namespace
 	installAction.CreateNamespace = true
-	installAction.Timeout = 5 * time.Minute
+	installAction.Timeout = 10 * time.Minute // Augmenté pour Kibana qui peut prendre plus de temps
 	installAction.Wait = true
 	installAction.WaitForJobs = true
 
 	// Load chart
 	chart, err := loader.Load(chartPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load chart: %w", err)
+		return nil, fmt.Errorf("failed to load chart from path %s: %w", chartPath, err)
 	}
 
 	// Install
 	rel, err := installAction.RunWithContext(ctx, chart, values)
 	if err != nil {
-		return nil, fmt.Errorf("failed to install chart: %w", err)
+		// Enrichir l'erreur avec plus de contexte
+		return nil, fmt.Errorf("failed to install Helm release %s in namespace %s: %w", releaseName, c.namespace, err)
 	}
 
 	return rel, nil
@@ -107,20 +108,21 @@ func (c *Client) install(ctx context.Context, releaseName, chartPath string, val
 func (c *Client) upgrade(ctx context.Context, releaseName, chartPath string, values map[string]interface{}) (*release.Release, error) {
 	upgradeAction := action.NewUpgrade(c.actionConfig)
 	upgradeAction.Namespace = c.namespace
-	upgradeAction.Timeout = 5 * time.Minute
+	upgradeAction.Timeout = 10 * time.Minute // Augmenté pour Kibana qui peut prendre plus de temps
 	upgradeAction.Wait = true
 	upgradeAction.WaitForJobs = true
 
 	// Load chart
 	chart, err := loader.Load(chartPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load chart: %w", err)
+		return nil, fmt.Errorf("failed to load chart from path %s: %w", chartPath, err)
 	}
 
 	// Upgrade
 	rel, err := upgradeAction.RunWithContext(ctx, releaseName, chart, values)
 	if err != nil {
-		return nil, fmt.Errorf("failed to upgrade chart: %w", err)
+		// Enrichir l'erreur avec plus de contexte
+		return nil, fmt.Errorf("failed to upgrade Helm release %s in namespace %s: %w", releaseName, c.namespace, err)
 	}
 
 	return rel, nil

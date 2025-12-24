@@ -39,6 +39,13 @@ spec:
           value: {{ include "kibana.fullname" . }}
         - name: SERVER_HOST
           value: "0.0.0.0"
+        {{- if and .Values.ingress.enabled (gt (len .Values.ingress.hosts) 0) }}
+        {{- $firstHost := index .Values.ingress.hosts 0 }}
+        {{- if $firstHost.host }}
+        - name: SERVER_PUBLICBASEURL
+          value: {{ printf "https://%s" $firstHost.host | quote }}
+        {{- end }}
+        {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         livenessProbe:

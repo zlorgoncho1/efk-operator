@@ -27,6 +27,7 @@ rules:
   resources:
   - daemonsets
   - deployments
+  - replicasets
   - statefulsets
   verbs:
   - create
@@ -101,8 +102,8 @@ rules:
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
-  - clusterroles
   - clusterrolebindings
+  - clusterroles
   verbs:
   - create
   - delete

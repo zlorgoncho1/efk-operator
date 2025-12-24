@@ -40,7 +40,6 @@ var _ = Describe("EFKStack Controller", func() {
 	var (
 		ctx        context.Context
 		fakeClient client.Client
-		reconciler *EFKStackReconciler
 		scheme     *runtime.Scheme
 	)
 
@@ -53,11 +52,6 @@ var _ = Describe("EFKStack Controller", func() {
 		fakeClient = fake.NewClientBuilder().
 			WithScheme(scheme).
 			Build()
-
-		reconciler = &EFKStackReconciler{
-			Client: fakeClient,
-			Scheme: scheme,
-		}
 	})
 
 	Context("When creating an EFKStack", func() {

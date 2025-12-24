@@ -18,7 +18,6 @@ elasticsearch:
   host: "elasticsearch"
   port: 9200
   index: "fluent-bit"
-  type: "_doc"
 
 config:
   service: |
@@ -54,18 +53,9 @@ config:
         K8S-Logging.Parser  On
         K8S-Logging.Exclude Off
 
-  output: |
-    [OUTPUT]
-        Name  es
-        Match *
-        Host  ${ELASTICSEARCH_HOST}
-        Port  ${ELASTICSEARCH_PORT}
-        Index ${ELASTICSEARCH_INDEX}
-        Type  ${ELASTICSEARCH_TYPE}
-        Logstash_Format On
-        Logstash_Prefix fluent-bit
-        Logstash_DateFormat %Y.%m.%d
-        Retry_Limit 6
+  # Output configuration is now generated directly in the ConfigMap template
+  # using .Values.elasticsearch values to ensure proper substitution
+  output: ""
 
 serviceAccount:
   create: true

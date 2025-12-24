@@ -9,5 +9,18 @@ data:
 {{ .Values.config.service | indent 4 }}
 {{ .Values.config.input | indent 4 }}
 {{ .Values.config.filter | indent 4 }}
+{{- if .Values.config.output }}
 {{ .Values.config.output | indent 4 }}
+{{- else }}
+    [OUTPUT]
+        Name  es
+        Match *
+        Host  {{ .Values.elasticsearch.host }}
+        Port  {{ .Values.elasticsearch.port }}
+        Index {{ .Values.elasticsearch.index }}
+        Logstash_Format On
+        Logstash_Prefix fluent-bit
+        Logstash_DateFormat %Y.%m.%d
+        Retry_Limit 6
+{{- end }}
 
