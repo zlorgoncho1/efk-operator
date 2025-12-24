@@ -56,17 +56,17 @@ livenessProbe:
   httpGet:
     path: /api/status
     port: 5601
-  initialDelaySeconds: 60
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
+  initialDelaySeconds: 300
+  periodSeconds: 30
+  timeoutSeconds: 30
+  failureThreshold: 10
 
 readinessProbe:
   httpGet:
     path: /api/status
     port: 5601
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
+  initialDelaySeconds: 180
+  periodSeconds: 15
+  timeoutSeconds: 20
+  failureThreshold: 10
 
