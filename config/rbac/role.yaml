@@ -10,6 +10,7 @@ rules:
   - configmaps
   - namespaces
   - persistentvolumeclaims
+  - pods
   - secrets
   - serviceaccounts
   - services
@@ -89,6 +90,19 @@ rules:
   - policy
   resources:
   - poddisruptionbudgets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  - clusterrolebindings
   verbs:
   - create
   - delete

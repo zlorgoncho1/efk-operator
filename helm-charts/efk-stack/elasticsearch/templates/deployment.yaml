@@ -1,0 +1,102 @@
+{{- if eq .Values.mode "singleton" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "elasticsearch.fullname" . }}
+  labels:
+    {{- include "elasticsearch.labels" . | nindent 4 }}
+    app.kubernetes.io/component: elasticsearch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "elasticsearch.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "elasticsearch.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "elasticsearch.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+      containers:
+      - name: elasticsearch
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 9200
+          protocol: TCP
+        - name: transport
+          containerPort: 9300
+          protocol: TCP
+        env:
+        - name: cluster.name
+          value: "{{ include "elasticsearch.fullname" . }}"
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        # Singleton mode: disable discovery and bootstrap
+        - name: discovery.type
+          value: "single-node"
+        - name: ES_JAVA_OPTS
+          value: "-Xms{{ .Values.resources.requests.memory | replace "Gi" "g" | replace "Mi" "m" }} -Xmx{{ .Values.resources.requests.memory | replace "Gi" "g" | replace "Mi" "m" }}"
+        - name: xpack.security.enabled
+          value: "{{ .Values.security.authEnabled }}"
+        {{- if and .Values.security.tlsEnabled .Values.security.tlsSecretName }}
+        - name: xpack.security.transport.ssl.enabled
+          value: "true"
+        {{- else }}
+        - name: xpack.security.transport.ssl.enabled
+          value: "false"
+        {{- end }}
+        {{- if .Values.security.tlsSecretName }}
+        - name: xpack.security.transport.ssl.keystore.path
+          value: "/usr/share/elasticsearch/config/certs/elasticsearch.p12"
+        - name: xpack.security.transport.ssl.truststore.path
+          value: "/usr/share/elasticsearch/config/certs/elasticsearch.p12"
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+        {{- if .Values.security.tlsSecretName }}
+        - name: certs
+          mountPath: /usr/share/elasticsearch/config/certs
+          readOnly: true
+        {{- end }}
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 10 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: data
+        {{- if eq .Values.storage.volumeType "persistentVolumeClaim" }}
+        persistentVolumeClaim:
+          claimName: {{ include "elasticsearch.fullname" . }}-data
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- if .Values.security.tlsSecretName }}
+      - name: certs
+        secret:
+          secretName: {{ .Values.security.tlsSecretName }}
+      {{- end }}
+{{- end }}
+

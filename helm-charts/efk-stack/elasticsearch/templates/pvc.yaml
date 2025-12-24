@@ -1,0 +1,22 @@
+{{- if and (eq .Values.mode "singleton") (eq .Values.storage.volumeType "persistentVolumeClaim") }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "elasticsearch.fullname" . }}-data
+  labels:
+    {{- include "elasticsearch.labels" . | nindent 4 }}
+  {{- if .Values.storage.path }}
+  annotations:
+    volume.beta.kubernetes.io/mount-options: "path={{ .Values.storage.path }}"
+  {{- end }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.storage.storageClassName }}
+  storageClassName: {{ .Values.storage.storageClassName }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+{{- end }}
+

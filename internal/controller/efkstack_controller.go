@@ -30,6 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	corev1 "k8s.io/api/core/v1"
 	loggingv1 "github.com/zlorgoncho1/efk-operator/api/v1"
 	"github.com/zlorgoncho1/efk-operator/internal/helm"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -48,10 +49,11 @@ type EFKStackReconciler struct {
 //+kubebuilder:rbac:groups=logging.efk.crds.io,resources=efkstacks/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=logging.efk.crds.io,resources=efkstacks/finalizers,verbs=update
 //+kubebuilder:rbac:groups=apps,resources=statefulsets;deployments;daemonsets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="",resources=configmaps;namespaces;secrets;services;serviceaccounts;persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=configmaps;namespaces;pods;secrets;services;serviceaccounts;persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=batch,resources=cronjobs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=policy,resources=poddisruptionbudgets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles;clusterrolebindings,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -136,7 +138,13 @@ func (r *EFKStackReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, err
 	}
 
-	return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
+	// Optimiser l'intervalle de réconciliation selon l'état
+	if efkStack.Status.Phase == "Ready" {
+		// Si tout est Ready, vérifier moins fréquemment
+		return ctrl.Result{RequeueAfter: 60 * time.Second}, nil
+	}
+	// Si en cours de déploiement, vérifier plus fréquemment
+	return ctrl.Result{RequeueAfter: 15 * time.Second}, nil
 }
 
 // reconcileElasticsearch handles Elasticsearch deployment
@@ -147,10 +155,23 @@ func (r *EFKStackReconciler) reconcileElasticsearch(ctx context.Context, efkStac
 	releaseName := fmt.Sprintf("%s-elasticsearch", efkStack.Name)
 	chartPath := filepath.Join("helm-charts", "efk-stack", "elasticsearch")
 
+	// Determine mode (default to cluster if not specified)
+	mode := efkStack.Spec.Elasticsearch.Mode
+	if mode == "" {
+		mode = "cluster"
+	}
+
+	// In singleton mode, force replicas to 1
+	replicas := efkStack.Spec.Elasticsearch.Replicas
+	if mode == "singleton" {
+		replicas = 1
+	}
+
 	// Prepare values for Helm chart
 	values := map[string]interface{}{
 		"version":  efkStack.Spec.Elasticsearch.Version,
-		"replicas": efkStack.Spec.Elasticsearch.Replicas,
+		"mode":     mode,
+		"replicas": replicas,
 		"resources": map[string]interface{}{
 			"requests": map[string]interface{}{
 				"cpu":    efkStack.Spec.Elasticsearch.Resources.Requests.Cpu().String(),
@@ -183,7 +204,7 @@ func (r *EFKStackReconciler) reconcileElasticsearch(ctx context.Context, efkStac
 	if err != nil {
 		efkStack.Status.Elasticsearch.State = "Error"
 		r.Status().Update(ctx, efkStack)
-		return ctrl.Result{RequeueAfter: 30 * time.Second}, err
+		return ctrl.Result{RequeueAfter: 15 * time.Second}, err
 	}
 
 	// Check release status
@@ -230,12 +251,38 @@ func (r *EFKStackReconciler) reconcileFluentBit(ctx context.Context, efkStack *l
 		},
 	}
 
+	// Ajouter nodeSelector si spécifié
+	if len(efkStack.Spec.FluentBit.NodeSelector) > 0 {
+		values["nodeSelector"] = efkStack.Spec.FluentBit.NodeSelector
+	}
+
+	// Ajouter tolerations si spécifiées, sinon utiliser des tolerations par défaut pour DaemonSet
+	if len(efkStack.Spec.FluentBit.Tolerations) > 0 {
+		values["tolerations"] = efkStack.Spec.FluentBit.Tolerations
+	} else {
+		// Tolerations par défaut pour un DaemonSet qui doit s'exécuter sur tous les nœuds
+		values["tolerations"] = []corev1.Toleration{
+			{
+				Operator: corev1.TolerationOpExists,
+				Effect:   corev1.TaintEffectNoSchedule,
+			},
+			{
+				Operator: corev1.TolerationOpExists,
+				Effect:   corev1.TaintEffectNoExecute,
+			},
+			{
+				Operator: corev1.TolerationOpExists,
+				Effect:   corev1.TaintEffectPreferNoSchedule,
+			},
+		}
+	}
+
 	// Deploy via Helm
 	_, err := r.HelmClient.InstallOrUpgrade(ctx, releaseName, chartPath, values)
 	if err != nil {
 		efkStack.Status.FluentBit.State = "Error"
 		r.Status().Update(ctx, efkStack)
-		return ctrl.Result{RequeueAfter: 30 * time.Second}, err
+		return ctrl.Result{RequeueAfter: 15 * time.Second}, err
 	}
 
 	// Check release status
@@ -278,16 +325,40 @@ func (r *EFKStackReconciler) reconcileKibana(ctx context.Context, efkStack *logg
 			},
 		},
 		"elasticsearch": map[string]interface{}{
-			"url": fmt.Sprintf("http://%s-elasticsearch:9200", efkStack.Name),
+			"hosts": []string{
+				fmt.Sprintf("http://%s-elasticsearch:9200", efkStack.Name),
+			},
 		},
 	}
 
 	if efkStack.Spec.Kibana.Ingress.Enabled {
+		// Convertir le host en format hosts attendu par le template
+		ingressHosts := []map[string]interface{}{
+			{
+				"host": efkStack.Spec.Kibana.Ingress.Host,
+				"paths": []map[string]interface{}{
+					{
+						"path":     "/",
+						"pathType": "Prefix",
+					},
+				},
+			},
+		}
+
+		// Convertir TLS au format attendu par le template
+		ingressTLS := []map[string]interface{}{}
+		for _, tls := range efkStack.Spec.Kibana.Ingress.TLS {
+			ingressTLS = append(ingressTLS, map[string]interface{}{
+				"hosts":      tls.Hosts,
+				"secretName": tls.SecretName,
+			})
+		}
+
 		values["ingress"] = map[string]interface{}{
 			"enabled":     true,
-			"host":        efkStack.Spec.Kibana.Ingress.Host,
+			"hosts":       ingressHosts,
 			"annotations": efkStack.Spec.Kibana.Ingress.Annotations,
-			"tls":         efkStack.Spec.Kibana.Ingress.TLS,
+			"tls":         ingressTLS,
 		}
 	}
 	if len(efkStack.Spec.Kibana.NodeSelector) > 0 {
@@ -302,7 +373,7 @@ func (r *EFKStackReconciler) reconcileKibana(ctx context.Context, efkStack *logg
 	if err != nil {
 		efkStack.Status.Kibana.State = "Error"
 		r.Status().Update(ctx, efkStack)
-		return ctrl.Result{RequeueAfter: 30 * time.Second}, err
+		return ctrl.Result{RequeueAfter: 15 * time.Second}, err
 	}
 
 	// Check release status

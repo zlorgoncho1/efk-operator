@@ -54,7 +54,13 @@ type ElasticsearchSpec struct {
 	// +kubebuilder:validation:Required
 	Version string `json:"version"`
 
-	// Nombre de replicas
+	// Mode de déploiement : "singleton" (single node) ou "cluster" (multi-node)
+	// +kubebuilder:validation:Enum=singleton;cluster
+	// +kubebuilder:default=cluster
+	// +optional
+	Mode string `json:"mode,omitempty"`
+
+	// Nombre de replicas (ignoré en mode singleton, forcé à 1)
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:default=3
 	Replicas int32 `json:"replicas"`
@@ -97,6 +103,15 @@ type FluentBitSpec struct {
 	// Configuration Fluent Bit
 	// +optional
 	Config FluentBitConfig `json:"config,omitempty"`
+
+	// NodeSelector pour planifier les pods sur des nœuds spécifiques
+	// +optional
+	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
+
+	// Tolerations pour permettre le scheduling sur des nœuds avec des taints
+	// Pour un DaemonSet, il est recommandé d'ajouter des tolerations pour tous les taints communs
+	// +optional
+	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
 }
 
 // FluentBitConfig defines Fluent Bit configuration options

@@ -8,5 +8,5 @@ spec:
     spec:
       containers:
       - name: manager
-        image: zlorg/efk-operator:v0.1.8
+        image: zlorg/efk-operator:v0.3.1
 
